@@ -13,5 +13,5 @@ const data = (history as any[])
   }));
 
 export default function Table() {
-  return <DataTable data={data} columns={columns} />;
+  return <DataTable data={data} columns={cols} />;
 }

@@ -15,7 +15,7 @@ import VideoTable from './videos/table';
  * fetch video details from google api
  * if response does not include the request id then video is removed
  *
- * i want to show video thumbnail, title, channel name, channel photo ??, watch date
+ * i want to show video thumbnail, title, channel name, channel photo ??, watch date, where it was watched (youtube / youtube music)
  *
  */
 

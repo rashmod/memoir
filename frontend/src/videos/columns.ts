@@ -21,4 +21,4 @@ const columns: ColumnDef<Video>[] = [
   },
 ];
 
-export default columns;
+export default columns
