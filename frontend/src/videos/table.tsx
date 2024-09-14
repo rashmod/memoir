@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import history from '@/data/watch-history.json';
 
 import { DataTable } from '@/components/custom/data-table';
 import columns from '@/videos/columns';
+import axios from 'axios';
 
-const data = (history as any[])
+const initialData = (history as any[])
   .slice(0, 50)
   .filter((item) => !item.details)
   .filter((item) => item.titleUrl)
@@ -14,27 +15,29 @@ const data = (history as any[])
     url: item.titleUrl,
   }));
 
-const ids = data
+const ids = initialData
   .map((item) => {
     const [, url] = item.titleUrl.split('=');
     return 'id=' + url;
   })
   .join('&');
-console.log(ids);
 
 export default function Table() {
-  useEffect(() => {
-    async function getData() {
-      const response = await fetch(
+  const { data = [], isSuccess } = useQuery({
+    queryKey: ['videos'],
+    queryFn: async () => {
+      await new Promise((res) => setTimeout(res, 1000));
+      const response = await axios(
         `https://youtube.googleapis.com/youtube/v3/videos?part=id&part=snippet&${ids}&key=AIzaSyDFofEQXnBEX5pmJA2B3_2RYa660-9YcNk`
       );
-      const data = await response.json();
 
-      console.log(data);
+      console.log(response.data);
+
+      return response.data;
+    },
+  });
     }
 
-    getData();
-  }, []);
 
   return <DataTable data={data} columns={cols} />;
 }

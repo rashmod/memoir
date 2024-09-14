@@ -9,6 +9,7 @@ import VideoTable from './videos/table';
  * shorts may not have subtitles field
  * surveys will not have titleUrl field
  *
+ * removed or private videos are not part of the youtube api response
  *
  * watch history cleaning steps
  * remove items without details
