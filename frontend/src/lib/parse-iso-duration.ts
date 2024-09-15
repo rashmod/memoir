@@ -6,9 +6,6 @@ export default function parseISODuration(isoDuration: string) {
     throw new Error('Invalid ISO 8601 duration format');
   }
 
-  console.log(matches);
-  console.log(matches.map((item) => (isNaN(Number(item)) ? 0 : Number(item))));
-
   const [, years = 0, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0] = matches.map((item) =>
     isNaN(Number(item)) ? 0 : Number(item)
   );

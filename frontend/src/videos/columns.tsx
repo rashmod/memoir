@@ -1,7 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table';
 
+import { Skeleton } from '@/components/ui/skeleton';
 import parseISODuration from '@/lib/parse-iso-duration';
 import formatDuration from '@/lib/format-duration';
+import NewTabLink from '@/components/custom/new-tab-link';
 
 export type Video = {
   id: string;
@@ -13,15 +15,28 @@ const columns: ColumnDef<Video>[] = [
   {
     accessorKey: 'thumbnail',
     header: 'Thumbnail',
-    cell: ({ cell }) => {
+    cell: ({ cell, row }) => {
       const value = cell.getValue();
-      if (value) return <img src={value} className="aspect-video h-20 object-cover" />;
-      return <div className="h-2 w-12 bg-red-500"></div>;
+
+      return (
+        <NewTabLink link={row.original.url}>
+          {value ? (
+            <img src={value} className="aspect-video h-20 object-cover" />
+          ) : (
+            <Skeleton className="aspect-video h-20" />
+          )}
+        </NewTabLink>
+      );
     },
   },
   {
     accessorKey: 'title',
     header: 'Title',
+    cell: ({ cell, row }) => {
+      const value = cell.getValue();
+
+      return <NewTabLink link={row.original.url}>{value}</NewTabLink>;
+    },
   },
   {
     accessorKey: 'duration',
@@ -62,10 +77,12 @@ const columns: ColumnDef<Video>[] = [
   {
     accessorKey: 'channelTitle',
     header: 'Channel Name',
-    cell: ({ cell }) => {
+    cell: ({ cell, row }) => {
       const value = cell.getValue();
-      if (value) return value;
-      return <div className="h-2 w-12 bg-red-500"></div>;
+
+      return (
+        <NewTabLink link={row.original.channelUrl}>{value ? value : <Skeleton className="h-4 w-32" />}</NewTabLink>
+      );
     },
   },
   {
@@ -74,7 +91,7 @@ const columns: ColumnDef<Video>[] = [
     cell: ({ cell }) => {
       const value = cell.getValue();
       if (value) return value;
-      return <div className="h-2 w-12 bg-red-500"></div>;
+      return <Skeleton className="aspect-square h-16 rounded-full" />;
     },
   },
   {
