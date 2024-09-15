@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 
 import history from '@/data/watch-history.json';
 
 import { DataTable } from '@/components/custom/data-table';
 import columns from '@/videos/columns';
+import videos from '@/api/videos';
 
 const initialData = (history as any[])
   .slice(0, 50)
@@ -38,16 +38,8 @@ const parts = ['id', 'snippet', 'contentDetails'].map((item) => 'part=' + item).
 export default function Table() {
   const { data = [], isSuccess } = useQuery({
     queryKey: ['videos'],
-    queryFn: async () => {
-      await new Promise((res) => setTimeout(res, 1000));
-      const response = await axios(
-        `https://youtube.googleapis.com/youtube/v3/videos?${parts}&${ids}&key=AIzaSyDFofEQXnBEX5pmJA2B3_2RYa660-9YcNk`
-      );
+    queryFn: () => videos.getVideosData(parts, ids),
 
-      console.log(response.data);
-
-      return response.data;
-    },
   });
 
   const combinedData = useMemo(() => {
