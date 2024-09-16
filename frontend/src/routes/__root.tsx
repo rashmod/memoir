@@ -10,7 +10,7 @@ export const Route = createRootRoute({
     <QueryClientProvider client={queryClient}>
       <div className="grid min-h-[100dvh] grid-rows-[auto_1fr]">
         <Navbar />
-        <div className="container mx-auto p-8">
+        <div className="container mx-auto grid grid-rows-subgrid p-8">
           <Outlet />
         </div>
       </div>

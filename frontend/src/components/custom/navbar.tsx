@@ -1,4 +1,5 @@
 import { Hexagon } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
 
@@ -14,6 +15,19 @@ export default function Navbar() {
           </div>
           <h1 className="text-xl font-semibold">Memoir</h1>
         </header>
+
+        <div className="ml-auto flex gap-2 p-2">
+          <Link to="/" className="[&.active>*]:font-bold">
+            <Button variant="link" size="sm">
+              Home
+            </Button>
+          </Link>
+          <Link to="/upload" className="[&.active>*]:font-bold">
+            <Button variant="link" size="sm">
+              Upload
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

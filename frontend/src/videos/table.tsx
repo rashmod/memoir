@@ -1,52 +1,31 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import history from '@/data/watch-history.json';
-
 import { DataTable } from '@/components/custom/data-table';
 import columns from '@/videos/columns';
-import videos from '@/api/videos';
-
-const initialData = (history as any[])
-  .slice(0, 50)
-  .filter((item) => !item.details)
-  .filter((item) => item.titleUrl)
-  .map((item) => {
-    const subtitles = item.subtitles;
-
-    const channelTitle = subtitles ? subtitles[0].name : undefined;
-    const channelUrl = subtitles ? subtitles[0].url : undefined;
-
-    return {
-      ...item,
-      title: item.title.replace('Watched ', ''),
-      url: item.titleUrl,
-      channelTitle,
-      channelUrl,
-    };
-  });
-
-const ids = initialData
-  .map((item) => {
-    const [, url] = item.titleUrl.split('=');
-    return 'id=' + url;
-  })
-  .join('&');
+import videosApi from '@/api/videos';
+import { VideoSchema } from '@/routes/upload';
 
 const parts = ['id', 'snippet', 'contentDetails'].map((item) => 'part=' + item).join('&');
 
-export default function Table() {
+export default function Table({ videos }: { videos: VideoSchema }) {
+  const ids = videos.map((item) => 'id=' + item.id).join('&');
+
   const { data = [], isSuccess } = useQuery({
     queryKey: ['videos'],
-    queryFn: () => videos.getVideosData(parts, ids),
+    queryFn: () => videosApi.getVideosData(parts, ids),
+    enabled: videos.length > 0,
 
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
   });
 
   const combinedData = useMemo(() => {
     if (isSuccess) {
-      return initialData
+      return videos
         .map((item) => {
-          const video = data.items.find((video) => video.id === item.titleUrl.split('=')[1]);
+          const video = data.items.find((video) => video.id === item.id);
           if (!video) return null;
 
           return {
@@ -60,8 +39,11 @@ export default function Table() {
         .filter((item) => !!item);
     }
 
-    return initialData;
+    return videos;
   }, [isSuccess, data]);
+
+  console.log(Object.keys(videos[0]));
+  console.log(Object.keys(combinedData[0]));
 
   return <DataTable data={combinedData} columns={columns} />;
 }
