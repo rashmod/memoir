@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import FileUploader from '@/components/custom/file-uploader';
 import Table from '@/videos/table';
+import filterJsonData from '@/lib/filterJsonData';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -26,24 +27,25 @@ const jsonSchema = z.array(
   })
 );
 
-const videoSchema = z.array(
-  z.object({
-    id: z.string(),
-    title: z.string(),
-    url: z.string(),
-    time: z.string().datetime(),
-    channelTitle: z.string().optional(),
-    channelUrl: z.string().optional(),
-    thumbnail: z.string().optional(),
-    duration: z.string().duration().optional(),
-  })
-);
+const videoSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  url: z.string(),
+  time: z.string().datetime(),
+  channelTitle: z.string().optional(),
+  channelUrl: z.string().optional(),
+  thumbnail: z.string().optional(),
+  duration: z.string().duration().optional(),
+});
 
-type JsonSchema = z.infer<typeof jsonSchema>;
+const videosSchema = z.array(videoSchema);
+
+export type JsonSchema = z.infer<typeof jsonSchema>;
 export type VideoSchema = z.infer<typeof videoSchema>;
+export type VideosSchema = z.infer<typeof videosSchema>;
 
 function Page() {
-  const [jsonData, setJsonData] = useState<VideoSchema | null>(null);
+  const [jsonData, setJsonData] = useState<VideosSchema | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   console.log(jsonData);
@@ -59,22 +61,7 @@ function Page() {
             const result = jsonSchema.safeParse(parsedJson);
 
             if (result.success) {
-              const formattedData: VideoSchema = result.data
-                .filter((item) => !item.details)
-                .filter((item) => item.titleUrl)
-                .map((item) => {
-                  const subtitles = item.subtitles;
-
-                  const channelTitle = subtitles ? subtitles[0].name : undefined;
-                  const channelUrl = subtitles ? subtitles[0].url : undefined;
-                  const title = item.title.replace('Watched ', '');
-                  const url = item.titleUrl!;
-                  const [, id] = url.split('=');
-                  const time = item.time;
-
-                  return { title, channelTitle, channelUrl, url, id, time };
-                });
-
+              const formattedData: VideosSchema = filterJsonData(result.data);
               setJsonData((prev) => (prev ? prev.concat(formattedData) : formattedData));
               setError(null);
             } else {

@@ -9,7 +9,7 @@ import formatDuration from '@/lib/format-duration';
 
 import { VideoSchema } from '@/routes/upload';
 
-const columnHelper = createColumnHelper<VideoSchema[number]>();
+const columnHelper = createColumnHelper<VideoSchema>();
 
 const columns = [
   columnHelper.display({
@@ -58,7 +58,7 @@ const columns = [
   columnHelper.accessor('duration', {
     header: 'Duration',
     cell: ({ cell }) => {
-      const value = cell.getValue() as string | undefined;
+      const value = cell.getValue();
 
       if (!value) return <Skeleton className="h-4 w-20" />;
 
@@ -70,7 +70,7 @@ const columns = [
     header: 'Watched on',
     cell: ({ cell }) => {
       // TODO show relative time??
-      const value = cell.getValue() as string;
+      const value = cell.getValue();
       const date = new Date(value).toLocaleDateString(undefined, {
         day: '2-digit',
         month: 'short',
@@ -106,11 +106,11 @@ const columns = [
   //     if (value) return value;
   //     return <Skeleton className="aspect-square h-16 rounded-full" />;
   //   },
-  // // }),
+  // }),
   // {
   //   accessorKey: 'tags',
   //   header: 'Tags',
   // },
-];
+] as ColumnDef<VideoSchema>[];
 
 export default columns;
