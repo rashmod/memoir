@@ -1,14 +1,23 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 
-import { DataTable } from '@/components/custom/data-table';
-import columns from '@/videos/columns';
 import videosApi from '@/api/videos';
+import { DataTable } from '@/components/custom/data-table';
 import { VideosSchema } from '@/routes/upload';
+import columns from '@/videos/columns';
+import { RowSelectionState } from '@tanstack/react-table';
 
 const parts = ['id', 'snippet', 'contentDetails'].map((item) => 'part=' + item).join('&');
 
-export default function Table({ videos }: { videos: VideosSchema }) {
+export default function Table({
+  videos,
+  rowSelection,
+  setRowSelection,
+}: {
+  videos: VideosSchema;
+  rowSelection?: RowSelectionState;
+  setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
+}) {
   const ids = videos.map((item) => 'id=' + item.id).join('&');
 
   const { data = [], isSuccess } = useQuery({
@@ -29,10 +38,15 @@ export default function Table({ videos }: { videos: VideosSchema }) {
     return videos;
   }, [isSuccess, videos, data]);
 
-  console.log(Object.keys(videos[0]));
-  console.log(Object.keys(combinedData[0]));
-
-  return <DataTable data={combinedData} columns={columns} />;
+  return (
+    <DataTable
+      data={combinedData}
+      columns={columns}
+      getId={(item) => item.id}
+      rowSelection={rowSelection}
+      setRowSelection={setRowSelection}
+    />
+  );
 }
 
 function combineData(data: any[], jsonData: VideosSchema) {

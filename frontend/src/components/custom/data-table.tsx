@@ -1,18 +1,32 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, RowSelectionState, useReactTable } from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  getId: (row: TData) => string;
+  rowSelection?: RowSelectionState;
+  setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  getId,
+  rowSelection,
+  setRowSelection,
+}: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
+    getRowId: getId,
     getCoreRowModel: getCoreRowModel(),
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
   });
+
+  // todo select row when user clicks on row when user is uploading files
 
   return (
     <div className="rounded-md border">

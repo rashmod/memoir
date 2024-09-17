@@ -1,10 +1,25 @@
-import { useState } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
+import { RowSelectionState } from '@tanstack/react-table';
+import { Edit, Trash } from 'lucide-react';
+import { useState } from 'react';
 import { z } from 'zod';
 
 import FileUploader from '@/components/custom/file-uploader';
-import Table from '@/videos/table';
+import { Button } from '@/components/ui/button';
 import filterJsonData from '@/lib/filterJsonData';
+import Table from '@/videos/table';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -45,8 +60,10 @@ export type VideoSchema = z.infer<typeof videoSchema>;
 export type VideosSchema = z.infer<typeof videosSchema>;
 
 function Page() {
-  const [jsonData, setJsonData] = useState<VideosSchema | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [jsonData, setJsonData] = useState<VideosSchema>();
+  const [error, setError] = useState<string>();
+
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   console.log(jsonData);
 
@@ -63,7 +80,7 @@ function Page() {
             if (result.success) {
               const formattedData: VideosSchema = filterJsonData(result.data);
               setJsonData((prev) => (prev ? prev.concat(formattedData) : formattedData));
-              setError(null);
+              setError(undefined);
             } else {
               setError('Invalid json structure');
               console.error(result.error);
@@ -79,11 +96,52 @@ function Page() {
     });
   }
 
+  function onDeleteSelected() {
+    setJsonData((prev) => {
+      return prev?.filter((item) => !rowSelection[item.id]).filter(Boolean);
+    });
+    setRowSelection({});
+  }
+
   return (
-    <section className="grid place-items-center">
+    <section className="grid place-items-center gap-8">
       <FileUploader onUpload={onUpload} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {jsonData && <Table videos={jsonData} />}
+      {jsonData && (
+        <div className="relative grid w-full gap-4">
+          <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+          {Object.keys(rowSelection).length > 0 && (
+            <div className="sticky bottom-5 z-50 justify-self-center rounded-md border bg-muted/95 px-4 py-1 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-muted/30">
+              <Button variant="link" size="sm">
+                <Edit className="mr-2 size-4" /> Edit Selected
+              </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="link" size="sm">
+                    <Trash className="mr-2 size-4" /> Delete Selected
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure you want to delete these videos?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete {Object.keys(rowSelection).length}{' '}
+                      video entries.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction className="bg-destructive hover:bg-destructive/90" onClick={onDeleteSelected}>
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
