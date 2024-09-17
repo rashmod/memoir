@@ -26,6 +26,12 @@ export function DataTable<TData, TValue>({
     state: { rowSelection },
   });
 
+  // console.log(rowSelection);
+  // console.log(table.getState().rowSelection);
+  // console.log(table.getSelectedRowModel().rows);
+  // console.log(table.getFilteredSelectedRowModel().rows);
+  // console.log(table.getGroupedSelectedRowModel().rows);
+
   // todo select row when user clicks on row when user is uploading files
 
   return (

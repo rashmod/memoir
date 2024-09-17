@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { z } from 'zod';
 
 import FileUploader from '@/components/custom/file-uploader';
-import { Button } from '@/components/ui/button';
 import filterJsonData from '@/lib/filterJsonData';
 import Table from '@/videos/table';
 
@@ -20,6 +19,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -64,6 +75,8 @@ function Page() {
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   console.log(jsonData);
 
@@ -112,9 +125,37 @@ function Page() {
           <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
           {Object.keys(rowSelection).length > 0 && (
             <div className="sticky bottom-5 z-50 justify-self-center rounded-md border bg-muted/95 px-4 py-1 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-muted/30">
-              <Button variant="link" size="sm">
-                <Edit className="mr-2 size-4" /> Edit Selected
-              </Button>
+              <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="link" size="sm">
+                    <Edit className="mr-2 size-4" /> Edit Selected
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add tags to videos</DialogTitle>
+                    <DialogDescription>
+                      This will add tags to the selected videos. You can choose to keep previous tags.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form className="grid gap-4">
+                    <div className="grid gap-4 py-4">
+                      <div className="flex items-center gap-4">
+                        <Label htmlFor="tag" className="pr-5">
+                          Tags
+                        </Label>
+                        <Input id="tags" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" type="button" onClick={() => setOpenEditDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">Save changes</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
