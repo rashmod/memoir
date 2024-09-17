@@ -1,19 +1,37 @@
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import parseISODuration from '@/lib/parse-iso-duration';
-import formatDuration from '@/lib/format-duration';
+import { Checkbox } from '@/components/ui/checkbox';
 import NewTabLink from '@/components/custom/new-tab-link';
 
-export type Video = {
-  id: string;
-  title: string;
-  time: string;
-};
+import parseISODuration from '@/lib/parse-iso-duration';
+import formatDuration from '@/lib/format-duration';
 
-const columns: ColumnDef<Video>[] = [
-  {
-    accessorKey: 'thumbnail',
+import { VideoSchema } from '@/routes/upload';
+
+const columnHelper = createColumnHelper<VideoSchema[number]>();
+
+const columns = [
+  columnHelper.display({
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  }),
+  columnHelper.accessor('thumbnail', {
     header: 'Thumbnail',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -28,18 +46,16 @@ const columns: ColumnDef<Video>[] = [
         </NewTabLink>
       );
     },
-  },
-  {
-    accessorKey: 'title',
+  }),
+  columnHelper.accessor('title', {
     header: 'Title',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
 
       return <NewTabLink link={row.original.url}>{value}</NewTabLink>;
     },
-  },
-  {
-    accessorKey: 'duration',
+  }),
+  columnHelper.accessor('duration', {
     header: 'Duration',
     cell: ({ cell }) => {
       const value = cell.getValue() as string | undefined;
@@ -49,9 +65,8 @@ const columns: ColumnDef<Video>[] = [
       const parsedDuration = parseISODuration(value);
       return formatDuration(parsedDuration);
     },
-  },
-  {
-    accessorKey: 'time',
+  }),
+  columnHelper.accessor('time', {
     header: 'Watched on',
     cell: ({ cell }) => {
       // TODO show relative time??
@@ -73,9 +88,8 @@ const columns: ColumnDef<Video>[] = [
         </div>
       );
     },
-  },
-  {
-    accessorKey: 'channelTitle',
+  }),
+  columnHelper.accessor('channelTitle', {
     header: 'Channel Name',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -84,20 +98,19 @@ const columns: ColumnDef<Video>[] = [
         <NewTabLink link={row.original.channelUrl}>{value ? value : <Skeleton className="h-4 w-32" />}</NewTabLink>
       );
     },
-  },
-  {
-    accessorKey: 'channelImage',
-    header: 'Channel Image',
-    cell: ({ cell }) => {
-      const value = cell.getValue();
-      if (value) return value;
-      return <Skeleton className="aspect-square h-16 rounded-full" />;
-    },
-  },
-  {
-    accessorKey: 'tags',
-    header: 'Tags',
-  },
+  }),
+  // columnHelper.accessor('channelImage', {
+  //   header: 'Channel Image',
+  //   cell: ({ cell }) => {
+  //     const value = cell.getValue();
+  //     if (value) return value;
+  //     return <Skeleton className="aspect-square h-16 rounded-full" />;
+  //   },
+  // // }),
+  // {
+  //   accessorKey: 'tags',
+  //   header: 'Tags',
+  // },
 ];
 
 export default columns;

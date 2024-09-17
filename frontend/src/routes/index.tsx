@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import history from '@/data/watch-history.json';
 import Table from '@/videos/table';
+import { VideoSchema } from '@/routes/upload';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -10,7 +11,7 @@ export const Route = createFileRoute('/')({
 console.log((history as any[])[0]);
 console.log(Object.keys((history as any[])[0]));
 
-const data = (history as any[])
+const data: VideoSchema = (history as any[])
   .slice(0, 50)
   .filter((item) => !item.details)
   .filter((item) => item.titleUrl)
@@ -19,14 +20,12 @@ const data = (history as any[])
 
     const channelTitle = subtitles ? subtitles[0].name : undefined;
     const channelUrl = subtitles ? subtitles[0].url : undefined;
+    const title = item.title.replace('Watched ', '');
+    const url = item.titleUrl!;
+    const [, id] = url.split('=');
+    const time = item.time;
 
-    return {
-      ...item,
-      title: item.title.replace('Watched ', ''),
-      url: item.titleUrl,
-      channelTitle,
-      channelUrl,
-    };
+    return { title, channelTitle, channelUrl, url, id, time };
   });
 
 function Page() {

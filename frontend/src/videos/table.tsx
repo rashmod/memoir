@@ -29,10 +29,13 @@ export default function Table({ videos }: { videos: VideoSchema }) {
           if (!video) return null;
 
           return {
-            ...item,
-            channelTitle: video.snippet.channelTitle,
-            thumbnail: video.snippet.thumbnails.standard.url,
+            id: item.id,
             title: video.snippet.title,
+            url: item.url,
+            time: item.time,
+            channelTitle: video.snippet.channelTitle,
+            channelUrl: `https://youtube.com/channel/${video.snippet.channelId}`,
+            thumbnail: video.snippet.thumbnails.standard.url,
             duration: video.contentDetails.duration,
           };
         })

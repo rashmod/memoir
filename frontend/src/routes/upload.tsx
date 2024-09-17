@@ -34,6 +34,8 @@ const videoSchema = z.array(
     time: z.string().datetime(),
     channelTitle: z.string().optional(),
     channelUrl: z.string().optional(),
+    thumbnail: z.string().optional(),
+    duration: z.string().duration().optional(),
   })
 );
 
