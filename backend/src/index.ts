@@ -1,5 +1,6 @@
 import express from 'express';
-import envConfig from './config/env.config';
+
+import env from './config/env';
 
 const app = express();
 
@@ -7,8 +8,8 @@ app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
 
-app.listen(envConfig.PORT, () => {
+app.listen(env.PORT, () => {
 	console.log(
-		`Server started in ${envConfig.NODE_ENV} mode on host ${envConfig.HOST} and port ${envConfig.PORT}`
+		`Server started in ${env.NODE_ENV} mode on host ${env.HOST} and port ${env.PORT}`
 	);
 });

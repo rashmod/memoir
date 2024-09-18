@@ -6,7 +6,11 @@
 	"scripts": {
 		"start": "node ./dist/index.js",
 		"build": "npx tsc",
-		"dev": "nodemon ./src/index.ts"
+		"dev": "nodemon ./src/index.ts",
+		"db:generate": "drizzle-kit generate --config=./src/config/drizzle.ts",
+		"db:migrate": "drizzle-kit migrate --config=./src/config/drizzle.ts",
+		"db:push": "drizzle-kit push --config=./src/config/drizzle.ts",
+		"db:studio": "drizzle-kit studio --config=./src/config/drizzle.ts"
 	},
 	"keywords": [],
 	"author": "",
@@ -14,14 +18,18 @@
 	"devDependencies": {
 		"@types/express": "^4.17.21",
 		"@types/node": "^20.12.5",
+		"drizzle-kit": "^0.24.2",
 		"nodemon": "^3.1.0",
 		"ts-node": "^10.9.2",
+		"tsconfig-paths": "^4.2.0",
 		"typescript": "^5.4.4"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.5",
 		"dotenv-expand": "^11.0.6",
+		"drizzle-orm": "^0.33.0",
 		"express": "^4.19.2",
+		"postgres": "^3.4.4",
 		"zod": "^3.23.8"
 	}
 }
