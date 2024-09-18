@@ -55,16 +55,17 @@ function combineData(data: any[], jsonData: VideosSchema) {
       const video = data.items.find((video) => video.id === item.id);
       if (!video) return null;
 
-      return {
+      const result = {
         id: item.id,
-        title: video.snippet.title,
+        title: video.snippet.title as string,
         url: item.url,
         time: item.time,
-        channelTitle: video.snippet.channelTitle,
+        channelTitle: video.snippet.channelTitle as string,
         channelUrl: `https://youtube.com/channel/${video.snippet.channelId}`,
-        thumbnail: video.snippet.thumbnails.standard.url,
-        duration: video.contentDetails.duration,
+        thumbnail: video.snippet.thumbnails.standard.url as string,
+        duration: video.contentDetails.duration as string,
       };
+      return result;
     })
     .filter((item) => !!item);
 }

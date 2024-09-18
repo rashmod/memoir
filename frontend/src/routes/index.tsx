@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { RowSelectionState } from '@tanstack/react-table';
+import { useMemo, useState } from 'react';
 
 import history from '@/data/watch-history.json';
-import Table from '@/videos/table';
-import { JsonSchema } from '@/routes/upload';
+
+import SelectionActionBar from '@/components/custom/selection-action-bar';
 import filterJsonData from '@/lib/filterJsonData';
+import { JsonSchema, VideosSchema } from '@/routes/upload';
+import Table from '@/videos/table';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -15,5 +19,23 @@ console.log(Object.keys((history as any[])[0]));
 const data = filterJsonData((history as JsonSchema).slice(0, 50));
 
 function Page() {
-  return <Table videos={data} />;
+  const [jsonData, setJsonData] = useState<VideosSchema>(data);
+
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
+
+  function onDeleteSelected() {
+    setJsonData((prev) => {
+      return prev?.filter((item) => !rowSelection[item.id]).filter(Boolean);
+    });
+    setRowSelection({});
+  }
+
+  return (
+    <div className="relative grid w-full gap-4">
+      <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+      <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
+    </div>
+  );
 }
