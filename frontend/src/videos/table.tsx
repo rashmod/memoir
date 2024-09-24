@@ -18,7 +18,7 @@ export default function Table({
   rowSelection?: RowSelectionState;
   setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
 }) {
-  const ids = videos.map((item) => 'id=' + item.id).join('&');
+  const ids = videos.map((item) => 'id=' + item.youtubeId).join('&');
 
   const { data = [], isSuccess } = useQuery({
     queryKey: ['videos'],
@@ -42,7 +42,7 @@ export default function Table({
     <DataTable
       data={combinedData}
       columns={columns}
-      getId={(item) => item.id}
+      getId={(item) => item.youtubeId}
       rowSelection={rowSelection}
       setRowSelection={setRowSelection}
     />
@@ -52,18 +52,20 @@ export default function Table({
 function combineData(data: any[], jsonData: VideosSchema) {
   return jsonData
     .map((item) => {
-      const video = data.items.find((video) => video.id === item.id);
+      const video = data.items.find((video) => video.id === item.youtubeId);
       if (!video) return null;
 
       const result = {
-        id: item.id,
+        youtubeId: item.youtubeId,
         title: video.snippet.title as string,
         url: item.url,
         time: item.time,
+        channelId: video.snippet.channelId as string,
         channelTitle: video.snippet.channelTitle as string,
         channelUrl: `https://youtube.com/channel/${video.snippet.channelId}`,
         thumbnail: video.snippet.thumbnails.standard.url as string,
         duration: parseISODuration(video.contentDetails.duration as string),
+        youtubeCreatedAt: new Date(video.snippet.publishedAt),
       };
       return result;
     })

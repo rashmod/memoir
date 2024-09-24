@@ -11,9 +11,9 @@ export default function filterJsonData(data: JsonSchema) {
       const channelUrl = subtitles ? subtitles[0].url : undefined;
       const title = item.title.replace('Watched ', '');
       const url = item.titleUrl!;
-      const [, id] = url.split('=');
+      const [, youtubeId] = url.split('=');
       const time = item.time;
 
-      return { title, channelTitle, channelUrl, url, id, time };
+      return { title, channelTitle, channelUrl, url, youtubeId, time };
     });
 }

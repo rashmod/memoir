@@ -26,9 +26,7 @@ function Page() {
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   function onDeleteSelected() {
-    setJsonData((prev) => {
-      return prev?.filter((item) => !rowSelection[item.id]).filter(Boolean);
-    });
+    setJsonData((prev) => prev.filter((item) => !rowSelection[item.youtubeId]));
     setRowSelection({});
   }
 

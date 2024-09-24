@@ -31,14 +31,16 @@ const jsonSchema = z.array(
 );
 
 const videoSchema = z.object({
-  id: z.string(),
+  youtubeId: z.string(),
   title: z.string(),
   url: z.string(),
   time: z.string().datetime(),
+  channelId: z.string().optional(),
   channelTitle: z.string().optional(),
   channelUrl: z.string().optional(),
   thumbnail: z.string().optional(),
   duration: z.number().optional(),
+  youtubeCreatedAt: z.date().optional(),
 });
 
 const videosSchema = z.array(videoSchema);
@@ -48,7 +50,7 @@ export type VideoSchema = z.infer<typeof videoSchema>;
 export type VideosSchema = z.infer<typeof videosSchema>;
 
 function Page() {
-  const [jsonData, setJsonData] = useState<VideosSchema>();
+  const [jsonData, setJsonData] = useState<VideosSchema>([]);
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -67,7 +69,7 @@ function Page() {
 
             if (result.success) {
               const formattedData: VideosSchema = filterJsonData(result.data);
-              setJsonData((prev) => (prev ? prev.concat(formattedData) : formattedData));
+              setJsonData((prev) => prev.concat(formattedData));
               setError(undefined);
             } else {
               setError('Invalid json structure');
@@ -87,9 +89,7 @@ function Page() {
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   function onDeleteSelected() {
-    setJsonData((prev) => {
-      return prev?.filter((item) => !rowSelection[item.id]).filter(Boolean);
-    });
+    setJsonData((prev) => prev.filter((item) => !rowSelection[item.youtubeId]));
     setRowSelection({});
   }
 
@@ -97,7 +97,7 @@ function Page() {
     <section className="grid place-items-center gap-8">
       <FileUploader onUpload={onUpload} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {jsonData && (
+      {jsonData.length > 0 && (
         <div className="relative grid w-full gap-4">
           <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
           <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
