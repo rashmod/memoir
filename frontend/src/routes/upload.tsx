@@ -1,13 +1,16 @@
+import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { z } from 'zod';
 
+import videosApi from '@/api/videos';
 import filterJsonData from '@/lib/filter-json-data';
 import Table from '@/videos/table';
 
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
+import { Button } from '@/components/ui/button';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -55,6 +58,12 @@ function Page() {
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
+  const mutate = useMutation({
+    mutationFn: (data: VideosSchema) => {
+      return videosApi.uploadHistory(data);
+    },
+  });
+
   console.log(jsonData);
 
   function onUpload(acceptedFiles: File[]) {
@@ -98,14 +107,17 @@ function Page() {
       <FileUploader onUpload={onUpload} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       {jsonData.length > 0 && (
-        <div className="relative grid w-full gap-4">
+        <div className="space-y-4">
+          <Button onClick={() => mutate.mutate(jsonData)}>Upload</Button>
+          <div className="relative grid w-full gap-4">
             <Table
               jsonData={jsonData}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
               setJsonData={setJsonData}
             />
-          <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
+            <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
+          </div>
         </div>
       )}
     </section>
