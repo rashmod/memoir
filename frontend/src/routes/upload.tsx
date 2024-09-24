@@ -99,7 +99,12 @@ function Page() {
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       {jsonData.length > 0 && (
         <div className="relative grid w-full gap-4">
-          <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+            <Table
+              jsonData={jsonData}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              setJsonData={setJsonData}
+            />
           <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
         </div>
       )}

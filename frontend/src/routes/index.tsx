@@ -32,7 +32,12 @@ function Page() {
 
   return (
     <div className="relative grid w-full gap-4">
-      <Table videos={jsonData} rowSelection={rowSelection} setRowSelection={setRowSelection} />
+      <Table
+        jsonData={jsonData}
+        setJsonData={setJsonData}
+        rowSelection={rowSelection}
+        setRowSelection={setRowSelection}
+      />
       <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
     </div>
   );

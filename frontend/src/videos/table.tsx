@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { RowSelectionState } from '@tanstack/react-table';
+import React, { useEffect } from 'react';
 
 import videosApi from '@/api/videos';
 import { DataTable } from '@/components/custom/data-table';
@@ -10,37 +11,37 @@ import parseISODuration from '@/lib/parse-iso-duration';
 const parts = ['id', 'snippet', 'contentDetails'].map((item) => 'part=' + item).join('&');
 
 export default function Table({
-  videos,
+  jsonData,
+  setJsonData,
   rowSelection,
   setRowSelection,
 }: {
-  videos: VideosSchema;
+  jsonData: VideosSchema;
+  setJsonData: React.Dispatch<React.SetStateAction<VideosSchema>>;
   rowSelection?: RowSelectionState;
   setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
 }) {
-  const ids = videos.map((item) => 'id=' + item.youtubeId).join('&');
+  const ids = jsonData.map((item) => 'id=' + item.youtubeId).join('&');
 
   const { data = [], isSuccess } = useQuery({
     queryKey: ['videos'],
     queryFn: () => videosApi.getVideosData(parts, ids),
-    enabled: videos.length > 0,
+    enabled: jsonData.length > 0,
 
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
   });
 
-  const combinedData = useMemo(() => {
+  useEffect(() => {
     if (isSuccess) {
-      return combineData(data, videos);
+      setJsonData((prev) => combineData(data, prev));
     }
-
-    return videos;
-  }, [isSuccess, videos, data]);
+  }, [data, isSuccess, setJsonData]);
 
   return (
     <DataTable
-      data={combinedData}
+      data={jsonData}
       columns={columns}
       getId={(item) => item.youtubeId}
       rowSelection={rowSelection}
