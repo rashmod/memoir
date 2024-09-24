@@ -4,7 +4,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import NewTabLink from '@/components/custom/new-tab-link';
 
-import parseISODuration from '@/lib/parse-iso-duration';
 import formatDuration from '@/lib/format-duration';
 
 import { VideoSchema } from '@/routes/upload';
@@ -62,8 +61,7 @@ const columns = [
 
       if (!value) return <Skeleton className="h-4 w-20" />;
 
-      const parsedDuration = parseISODuration(value);
-      return formatDuration(parsedDuration);
+      return formatDuration(value);
     },
   }),
   columnHelper.accessor('time', {

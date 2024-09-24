@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import history from '@/data/watch-history.json';
 
 import SelectionActionBar from '@/components/custom/selection-action-bar';
-import filterJsonData from '@/lib/filterJsonData';
+import filterJsonData from '@/lib/filter-json-data';
 import { JsonSchema, VideosSchema } from '@/routes/upload';
 import Table from '@/videos/table';
 

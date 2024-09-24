@@ -1,16 +1,26 @@
-import parseISODuration from './parse-iso-duration';
+import time from '@/constants/time';
 
-export default function formatDuration(parsedDuration: ReturnType<typeof parseISODuration>) {
-  const day = 24;
-  const month = 30 * 24;
-  const year = 12 * 30 * 24;
+const { IN_SECONDS } = time;
 
-  const years = year * parsedDuration.years;
-  const months = month * parsedDuration.months;
-  const days = day * parsedDuration.days;
-  const hours = parsedDuration.hours;
-  const minutes = parsedDuration.minutes;
-  const seconds = parsedDuration.seconds;
+export default function formatDuration(duration: number) {
+  let dur = duration;
+
+  const years = Math.floor(dur / IN_SECONDS.year);
+  dur = dur % IN_SECONDS.year;
+
+  const months = Math.floor(dur / IN_SECONDS.month);
+  dur = dur % IN_SECONDS.month;
+
+  const days = Math.floor(dur / IN_SECONDS.day);
+  dur = dur % IN_SECONDS.day;
+
+  const hours = Math.floor(dur / IN_SECONDS.hour);
+  dur = dur % IN_SECONDS.hour;
+
+  const minutes = Math.floor(dur / IN_SECONDS.minute);
+  dur = dur % IN_SECONDS.minute;
+
+  const seconds = dur;
 
   const totalHours = hours + days + months + years;
 

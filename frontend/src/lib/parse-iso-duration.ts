@@ -1,3 +1,7 @@
+import time from '@/constants/time';
+
+const { IN_SECONDS } = time;
+
 export default function parseISODuration(isoDuration: string) {
   const regex = /P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/;
   const matches = isoDuration.match(regex);
@@ -10,12 +14,13 @@ export default function parseISODuration(isoDuration: string) {
     isNaN(Number(item)) ? 0 : Number(item)
   );
 
-  return {
-    years,
-    months,
-    days,
-    hours,
-    minutes,
-    seconds,
-  };
+  const duration =
+    seconds +
+    minutes * IN_SECONDS.minute +
+    hours * IN_SECONDS.hour +
+    days * IN_SECONDS.day +
+    months * IN_SECONDS.month +
+    years * IN_SECONDS.year;
+
+  return duration;
 }

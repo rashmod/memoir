@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { RowSelectionState } from '@tanstack/react-table';
 
 import videosApi from '@/api/videos';
 import { DataTable } from '@/components/custom/data-table';
 import { VideosSchema } from '@/routes/upload';
 import columns from '@/videos/columns';
-import { RowSelectionState } from '@tanstack/react-table';
+import parseISODuration from '@/lib/parse-iso-duration';
 
 const parts = ['id', 'snippet', 'contentDetails'].map((item) => 'part=' + item).join('&');
 
@@ -63,7 +63,7 @@ function combineData(data: any[], jsonData: VideosSchema) {
         channelTitle: video.snippet.channelTitle as string,
         channelUrl: `https://youtube.com/channel/${video.snippet.channelId}`,
         thumbnail: video.snippet.thumbnails.standard.url as string,
-        duration: video.contentDetails.duration as string,
+        duration: parseISODuration(video.contentDetails.duration as string),
       };
       return result;
     })

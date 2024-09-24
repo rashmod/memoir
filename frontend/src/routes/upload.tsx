@@ -3,12 +3,11 @@ import { RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { z } from 'zod';
 
-import FileUploader from '@/components/custom/file-uploader';
-import SelectionActionBar from '@/components/custom/selection-action-bar';
-import filterJsonData from '@/lib/filterJsonData';
+import filterJsonData from '@/lib/filter-json-data';
 import Table from '@/videos/table';
 
-import { Checkbox } from '@/components/ui/checkbox';
+import FileUploader from '@/components/custom/file-uploader';
+import SelectionActionBar from '@/components/custom/selection-action-bar';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -39,7 +38,7 @@ const videoSchema = z.object({
   channelTitle: z.string().optional(),
   channelUrl: z.string().optional(),
   thumbnail: z.string().optional(),
-  duration: z.string().duration().optional(),
+  duration: z.number().optional(),
 });
 
 const videosSchema = z.array(videoSchema);
