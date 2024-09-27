@@ -1,30 +1,30 @@
 import {
-	integer,
-	pgTable,
-	text,
-	timestamp,
-	uuid,
-	varchar,
-} from 'drizzle-orm/pg-core';
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 
-import { channel } from '@/db/schema';
+import { channel } from "@/db/schema";
 
-const video = pgTable('video', {
-	id: uuid('id').defaultRandom(),
-	youtubeId: varchar('youtube_id', { length: 11 }).primaryKey().notNull(),
-	title: varchar('title', { length: 255 }).notNull(),
-	description: text('description'),
-	url: varchar('url', { length: 255 }).notNull(),
-	thumbnailUrl: varchar('thumbnail_url', { length: 255 }).notNull(),
-	duration: integer('duration').notNull(),
-	youtubeCreatedAt: timestamp('youtube_created_at').notNull(),
+const video = pgTable("video", {
+  id: uuid("id").defaultRandom(),
+  youtubeId: varchar("youtube_id", { length: 11 }).primaryKey().notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  url: varchar("url", { length: 255 }).notNull(),
+  thumbnailUrl: varchar("thumbnail_url", { length: 255 }).notNull(),
+  duration: integer("duration").notNull(),
+  youtubeCreatedAt: timestamp("youtube_created_at").notNull(),
 
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 
-	channelId: varchar('channel_id', { length: 24 })
-		.references(() => channel.youtubeId)
-		.notNull(),
+  channelId: varchar("channel_id", { length: 24 })
+    .references(() => channel.youtubeId)
+    .notNull(),
 });
 
 // const likedVideo = pgTable('liked_video', {
