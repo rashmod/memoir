@@ -1,0 +1,17 @@
+const MINUTES_IN_SECONDS = 60;
+const HOURS_IN_SECONDS = MINUTES_IN_SECONDS * 60;
+const DAYS_IN_SECONDS = HOURS_IN_SECONDS * 24;
+const MONTHS_IN_SECONDS = DAYS_IN_SECONDS * 30;
+const YEARS_IN_SECONDS = MONTHS_IN_SECONDS * 12;
+
+const time = {
+  IN_SECONDS: {
+    minute: MINUTES_IN_SECONDS,
+    hour: HOURS_IN_SECONDS,
+    day: DAYS_IN_SECONDS,
+    month: MONTHS_IN_SECONDS,
+    year: YEARS_IN_SECONDS,
+  },
+};
+
+export default time;

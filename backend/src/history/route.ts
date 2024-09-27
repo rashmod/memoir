@@ -1,69 +1,101 @@
 import express from "express";
 
-import db from "@/db";
-import { video, watchedVideo } from "@/db/schema";
+import { channel, video, watchedVideo } from "@/db/schema";
 
 import VideoRepository from "@/repositories/video";
 import ChannelRepository from "@/repositories/channel";
 
+import YoutubeService from "@/services/youtube";
+import ChannelService from "@/services/channel";
+import VideoService from "@/services/video";
+
+import parseISODuration from "@/lib/parse-iso-duration";
+
 const router = express.Router();
+
+const DB_CHUNK_SIZE = 100;
 
 router.post(
   "/upload-history",
   async (req: express.Request, res: express.Response) => {
     const { history }: { history: HistoryVideo[] } = req.body;
 
-    const channels: {
-      set: Set<string>;
-      arr: { youtubeId: string; name: string; url: string }[];
-    } = { set: new Set<string>(), arr: [] };
+    const videoRepository = new VideoRepository();
+    const channelRepository = new ChannelRepository();
 
-    const videos: {
-      set: Set<string>;
-      arr: Array<typeof video.$inferInsert>;
-    } = { set: new Set<string>(), arr: [] };
+    const videoService = new VideoService(videoRepository);
+    const channelService = new ChannelService(channelRepository);
+    const youtubeService = new YoutubeService();
 
-    const watchedVideos: Array<typeof watchedVideo.$inferInsert> = [];
+    const watchedVideos: (typeof watchedVideo.$inferInsert)[] = [];
+
+    const videoSet = new Set<string>();
+    const channelSet = new Set<string>();
+
+    const videosToInsert: (typeof video.$inferInsert)[][] = [];
+    const channelsToInsert: (typeof channel.$inferInsert)[][] = [];
+
+    const userId = "0e4fce12-3606-4a66-b545-17b219682451";
 
     for (const video of history) {
-      if (!channels.set.has(video.channelId)) {
-        channels.set.add(video.channelId);
-        channels.arr.push({
-          youtubeId: video.channelId,
-          name: video.channelTitle,
-          url: video.channelUrl,
-        });
-      }
-
-      if (!videos.set.has(video.youtubeId)) {
-        videos.set.add(video.youtubeId);
-        videos.arr.push({
-          youtubeId: video.youtubeId,
-          title: video.title,
-          duration: video.duration,
-          url: video.url,
-          thumbnailUrl: video.thumbnail,
-          youtubeCreatedAt: new Date(video.youtubeCreatedAt),
-          channelId: video.channelId,
-        });
-      }
+      videoSet.add(video.youtubeId);
 
       watchedVideos.push({
-        userId: "0e4fce12-3606-4a66-b545-17b219682451",
-        youtubeCreatedAt: new Date(video.time),
+        userId,
         youtubeVideoId: video.youtubeId,
+        youtubeCreatedAt: new Date(video.time),
       });
     }
 
-    const channelRepository = new ChannelRepository();
+    const missingVideoIds = await videoService.getMissingVideoIds(
+      videoSet,
+      DB_CHUNK_SIZE,
+    );
 
-    await channelRepository.createOrUpdate(channels.arr);
+    const videoDetails = await youtubeService.getVideos(missingVideoIds);
 
-    const videoRepository = new VideoRepository();
+    for (const details of videoDetails) {
+      videosToInsert.push([]);
+      for (const video of details.items) {
+        channelSet.add(video.snippet.channelId);
 
-    await videoRepository.createOrUpdate(videos.arr);
+        videosToInsert[videosToInsert.length - 1]?.push({
+          youtubeId: video.id,
+          title: video.snippet.title,
+          url: `https://www.youtube.com/watch?v=${video.id}`,
+          duration: parseISODuration(video.contentDetails.duration),
+          channelId: video.snippet.channelId,
+          thumbnailUrl: youtubeService.getThumbnailUrl(
+            video.snippet.thumbnails,
+          ),
+          youtubeCreatedAt: new Date(video.snippet.publishedAt),
+        });
+      }
+    }
 
-    await db.insert(watchedVideo).values(watchedVideos);
+    const missingChannelIds = await channelService.getMissingChannelIds(
+      channelSet,
+      DB_CHUNK_SIZE,
+    );
+
+    const channelDetails = await youtubeService.getChannels(missingChannelIds);
+
+    for (const details of channelDetails) {
+      channelsToInsert.push([]);
+
+      for (const channel of details.items) {
+        channelsToInsert[channelsToInsert.length - 1]?.push({
+          youtubeId: channel.id,
+          url: `https://www.youtube.com/channel/${channel.id}`,
+          name: channel.snippet.title,
+          youtubeCreatedAt: new Date(channel.snippet.publishedAt),
+          avatarUrl: youtubeService.getThumbnailUrl(channel.snippet.thumbnails),
+        });
+      }
+    }
+
+    await channelService.bulkCreate(channelsToInsert);
+    await videoService.bulkCreate(videosToInsert);
 
     res.status(200).json({ message: "ok" });
   },
@@ -72,14 +104,8 @@ router.post(
 export default router;
 
 type HistoryVideo = {
-  youtubeId: string;
   title: string;
-  url: string;
   time: string;
-  channelId: string;
-  channelTitle: string;
-  channelUrl: string;
-  thumbnail: string;
-  duration: number;
-  youtubeCreatedAt: string;
+  url: string;
+  youtubeId: string;
 };

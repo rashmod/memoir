@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 
 import db from "@/db";
 import { channel } from "@/db/schema";
@@ -7,7 +7,11 @@ import formatExcludedColumns from "@/lib/format-excluded-columns";
 import formatTableColumnName from "@/lib/format-table-column-name";
 
 export default class ChannelRepository {
-  async createOrUpdate(channels: Array<typeof channel.$inferInsert>) {
+  async create(channels: (typeof channel.$inferInsert)[]) {
+    return await db.insert(channel).values(channels).returning();
+  }
+
+  async createOrUpdate(channels: (typeof channel.$inferInsert)[]) {
     return await db
       .insert(channel)
       .values(channels)
@@ -30,19 +34,10 @@ export default class ChannelRepository {
       .returning();
   }
 
-  async update() {
-    throw new Error("Not implemented");
-  }
-
-  async delete() {
-    throw new Error("Not implemented");
-  }
-
-  async get() {
-    throw new Error("Not implemented");
-  }
-
-  async getAll() {
-    throw new Error("Not implemented");
+  async getExisting(ids: string[]) {
+    return await db
+      .select({ youtubeId: channel.youtubeId })
+      .from(channel)
+      .where(inArray(channel.youtubeId, ids));
   }
 }

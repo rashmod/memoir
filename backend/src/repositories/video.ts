@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 
 import db from "@/db";
 import { video } from "@/db/schema";
@@ -7,6 +7,10 @@ import formatExcludedColumns from "@/lib/format-excluded-columns";
 import formatTableColumnName from "@/lib/format-table-column-name";
 
 export default class VideoRepository {
+  async create(videos: (typeof video.$inferInsert)[]) {
+    return await db.insert(video).values(videos).returning();
+  }
+
   async createOrUpdate(videos: Array<typeof video.$inferInsert>) {
     await db
       .insert(video)
@@ -31,19 +35,10 @@ export default class VideoRepository {
       });
   }
 
-  async update() {
-    throw new Error("Not implemented");
-  }
-
-  async delete() {
-    throw new Error("Not implemented");
-  }
-
-  async get() {
-    throw new Error("Not implemented");
-  }
-
-  async getAll() {
-    throw new Error("Not implemented");
+  async getExisting(ids: string[]) {
+    return await db
+      .select({ youtubeId: video.youtubeId })
+      .from(video)
+      .where(inArray(video.youtubeId, ids));
   }
 }
