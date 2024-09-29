@@ -34,11 +34,11 @@ export default class YoutubeService {
     thumbnails: YoutubeVideoResponse["items"][number]["snippet"]["thumbnails"],
   ) {
     const resolutions: Array<keyof typeof thumbnails> = [
-      "maxres",
-      "standard",
       "high",
       "medium",
       "default",
+      "maxres",
+      "standard",
     ];
 
     for (const res of resolutions) {

@@ -27,6 +27,6 @@ export default class ChannelService {
       }
     }
 
-    return Array.from(channelIdSet);
+    return [Array.from(channelIdSet), existingChannelIds] as const;
   }
 }

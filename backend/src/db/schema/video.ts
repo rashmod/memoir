@@ -10,7 +10,7 @@ import {
 import { channel } from "@/db/schema";
 
 const video = pgTable("video", {
-  id: uuid("id").defaultRandom(),
+  id: uuid("id").defaultRandom().notNull(),
   youtubeId: varchar("youtube_id", { length: 11 }).primaryKey().notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),

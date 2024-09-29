@@ -36,9 +36,6 @@ export default class VideoRepository {
   }
 
   async getExisting(ids: string[]) {
-    return await db
-      .select({ youtubeId: video.youtubeId })
-      .from(video)
-      .where(inArray(video.youtubeId, ids));
+    return await db.select().from(video).where(inArray(video.youtubeId, ids));
   }
 }

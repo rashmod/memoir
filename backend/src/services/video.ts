@@ -19,16 +19,16 @@ export default class VideoService {
 
   async getMissingVideoIds(videoIdSet: Set<string>, chunkSize: number) {
     const chunks = chunkArray(Array.from(videoIdSet), chunkSize);
-    const existingVideoIds = await Promise.all(
+    const existingVideos = await Promise.all(
       chunks.map((ids) => this.videoRepository.getExisting(ids)),
     );
 
-    for (const ids of existingVideoIds) {
-      for (const id of ids) {
-        videoIdSet.delete(id.youtubeId);
+    for (const videos of existingVideos) {
+      for (const video of videos) {
+        videoIdSet.delete(video.youtubeId);
       }
     }
 
-    return Array.from(videoIdSet);
+    return [Array.from(videoIdSet), existingVideos] as const;
   }
 }

@@ -36,7 +36,7 @@ export default class ChannelRepository {
 
   async getExisting(ids: string[]) {
     return await db
-      .select({ youtubeId: channel.youtubeId })
+      .select()
       .from(channel)
       .where(inArray(channel.youtubeId, ids));
   }
