@@ -1,6 +1,7 @@
 import axios from "axios";
 import env from "@/config/env";
 import chunkArray from "@/lib/chunk-array";
+import { video } from "@/db/schema";
 
 export default class YoutubeService {
   private readonly YOUTUBE_API_BASE_URL =
