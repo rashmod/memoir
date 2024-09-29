@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-import { VideosSchema } from '@/routes/upload';
+import { VideoSchema, VideosSchema } from '@/routes/upload';
 
-async function getVideosData(parts: string, ids: string) {
-  const response = await axios.get(
-    `https://youtube.googleapis.com/youtube/v3/videos?${parts}&${ids}&key=${import.meta.env.VITE_YOUTUBE_API_KEY}`
-  );
+async function addFile(
+  history: Pick<VideoSchema, 'title' | 'url' | 'time' | 'youtubeId'>[]
+): Promise<{ message: string; data: VideosSchema }> {
+  const response = await axios.post('http://localhost:3000/api/add-file', { history });
 
   console.log(response.data);
 
@@ -20,4 +20,4 @@ async function uploadHistory(history: VideosSchema) {
   return response.data;
 }
 
-export default { getVideosData, uploadHistory };
+export default { uploadHistory, addFile };

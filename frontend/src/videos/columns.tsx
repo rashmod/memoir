@@ -30,7 +30,11 @@ const columns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  columnHelper.accessor('thumbnail', {
+  columnHelper.display({
+    header: 'index',
+    cell: ({ cell }) => cell.row.index + 1,
+  }),
+  columnHelper.accessor('thumbnailUrl', {
     header: 'Thumbnail',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -87,7 +91,7 @@ const columns = [
       );
     },
   }),
-  columnHelper.accessor('channelTitle', {
+  columnHelper.accessor('channelName', {
     header: 'Channel Name',
     cell: ({ cell, row }) => {
       const value = cell.getValue();

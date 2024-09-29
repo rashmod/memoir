@@ -5,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  getId: (row: TData) => string;
   rowSelection?: RowSelectionState;
   setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
 }
@@ -13,14 +12,12 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  getId,
   rowSelection,
   setRowSelection,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
-    getRowId: getId,
     getCoreRowModel: getCoreRowModel(),
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },

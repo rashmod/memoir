@@ -38,12 +38,13 @@ const videoSchema = z.object({
   title: z.string(),
   url: z.string(),
   time: z.string().datetime(),
-  channelId: z.string().optional(),
-  channelTitle: z.string().optional(),
-  channelUrl: z.string().optional(),
-  thumbnail: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
   duration: z.number().optional(),
   youtubeCreatedAt: z.date().optional(),
+  channelId: z.string().optional(),
+  channelName: z.string().optional(),
+  channelUrl: z.string().optional(),
+  channelAvatarUrl: z.string().optional(),
 });
 
 const videosSchema = z.array(videoSchema);
@@ -52,19 +53,32 @@ export type JsonSchema = z.infer<typeof jsonSchema>;
 export type VideoSchema = z.infer<typeof videoSchema>;
 export type VideosSchema = z.infer<typeof videosSchema>;
 
+// TODO disable selection checkbox when data is being fetched
+// TODO handle uploads in multiple parts like multiple files for history
+// TODO what should be done for tempdata
+// TODO handle large amount of videos
+
 function Page() {
   const [jsonData, setJsonData] = useState<VideosSchema>([]);
+  const [tempData, setTempData] = useState<VideosSchema[]>([]);
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const mutate = useMutation({
-    mutationFn: (data: VideosSchema) => {
-      return videosApi.uploadHistory(data);
+  const addMutation = useMutation({
+    mutationFn: videosApi.addFile,
+    onSuccess: (data) => {
+      setJsonData((prev) => prev.concat(data.data));
+      setTempData((prev) => {
+        prev.shift();
+        return prev;
+      });
     },
   });
 
-  console.log(jsonData);
+  const uploadMutation = useMutation({
+    mutationFn: videosApi.uploadHistory,
+  });
 
   function onUpload(acceptedFiles: File[]) {
     acceptedFiles.forEach((file) => {
@@ -78,8 +92,9 @@ function Page() {
 
             if (result.success) {
               const formattedData: VideosSchema = filterJsonData(result.data);
-              setJsonData((prev) => prev.concat(formattedData));
+              setTempData((prev) => prev.concat([formattedData]));
               setError(undefined);
+              addMutation.mutate(formattedData);
             } else {
               setError('Invalid json structure');
               console.error(result.error);
@@ -106,15 +121,14 @@ function Page() {
     <section className="grid place-items-center gap-8">
       <FileUploader onUpload={onUpload} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {jsonData.length > 0 && (
+      {(jsonData.length > 0 || tempData.length > 0) && (
         <div className="space-y-4">
-          <Button onClick={() => mutate.mutate(jsonData)}>Upload</Button>
+          <Button onClick={() => uploadMutation.mutate(jsonData)}>Upload</Button>
           <div className="relative grid w-full gap-4">
             <Table
-              jsonData={jsonData}
+              jsonData={jsonData.concat(tempData.flat())}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
-              setJsonData={setJsonData}
             />
             <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
           </div>
