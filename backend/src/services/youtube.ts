@@ -1,7 +1,10 @@
 import axios from "axios";
+
 import env from "@/config/env";
 import chunkArray from "@/lib/chunk-array";
-import { video } from "@/db/schema";
+import size from "@/constants/size";
+
+const { YOUTUBE_CHUNK_SIZE } = size;
 
 export default class YoutubeService {
   private readonly YOUTUBE_API_BASE_URL =
@@ -15,17 +18,15 @@ export default class YoutubeService {
     .map((item) => "part=" + item)
     .join("&");
 
-  private readonly YOUTUBE_CHUNK_SIZE = 50;
-
   async getVideos(videoIds: string[]): Promise<YoutubeVideoResponse[]> {
-    const chunkedVideoIds = chunkArray(videoIds, this.YOUTUBE_CHUNK_SIZE);
+    const chunkedVideoIds = chunkArray(videoIds, YOUTUBE_CHUNK_SIZE);
     const params = this.generateIdParams(chunkedVideoIds);
 
     return await Promise.all(params.map((ids) => this.getVideoDetails(ids)));
   }
 
   async getChannels(channelIds: string[]): Promise<YoutubeChannelResponse[]> {
-    const chunkedChannelIds = chunkArray(channelIds, this.YOUTUBE_CHUNK_SIZE);
+    const chunkedChannelIds = chunkArray(channelIds, YOUTUBE_CHUNK_SIZE);
     const params = this.generateIdParams(chunkedChannelIds);
 
     return await Promise.all(params.map((ids) => this.getChannelDetails(ids)));
