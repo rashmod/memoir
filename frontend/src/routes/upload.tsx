@@ -1,16 +1,16 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { RowSelectionState } from '@tanstack/react-table';
+import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { z } from 'zod';
 
 import videosApi from '@/api/videos';
 import filterJsonData from '@/lib/filter-json-data';
-import Table from '@/videos/table';
 
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 import { Button } from '@/components/ui/button';
+import Table from '@/videos/table';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -64,6 +64,7 @@ function Page() {
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
@@ -117,6 +118,8 @@ function Page() {
     setRowSelection({});
   }
 
+  const combinedData = useMemo(() => jsonData.concat(tempData.flat()), [jsonData, tempData]);
+
   return (
     <section className="grid place-items-center gap-8">
       <FileUploader onUpload={onUpload} />
@@ -126,9 +129,12 @@ function Page() {
           <Button onClick={() => uploadMutation.mutate(jsonData)}>Upload</Button>
           <div className="relative grid w-full gap-4">
             <Table
-              jsonData={jsonData.concat(tempData.flat())}
+              jsonData={combinedData}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
+              pagination={pagination}
+              setPagination={setPagination}
+              getRowId={(row) => row.youtubeId}
             />
             <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
           </div>

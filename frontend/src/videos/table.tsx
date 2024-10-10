@@ -1,17 +1,33 @@
-import { RowSelectionState } from '@tanstack/react-table';
+import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 
 import { DataTable } from '@/components/custom/data-table';
-import { VideosSchema } from '@/routes/upload';
+import { VideoSchema, VideosSchema } from '@/routes/upload';
 import columns from '@/videos/columns';
 
 export default function Table({
   jsonData,
   rowSelection,
   setRowSelection,
+  pagination,
+  setPagination,
+  getRowId,
 }: {
   jsonData: VideosSchema;
   rowSelection?: RowSelectionState;
-  setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
+  setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
+  pagination?: PaginationState;
+  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  getRowId?: (row: VideoSchema) => string;
 }) {
-  return <DataTable data={jsonData} columns={columns} rowSelection={rowSelection} setRowSelection={setRowSelection} />;
+  return (
+    <DataTable
+      data={jsonData}
+      columns={columns}
+      rowSelection={rowSelection}
+      setRowSelection={setRowSelection}
+      pagination={pagination}
+      setPagination={setPagination}
+      getRowId={getRowId}
+    />
+  );
 }

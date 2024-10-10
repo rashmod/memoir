@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { RowSelectionState } from '@tanstack/react-table';
+import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 
 import history from '@/data/watch-history.json';
@@ -22,6 +22,7 @@ function Page() {
   const [jsonData, setJsonData] = useState<VideosSchema>(data);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
 
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
@@ -34,9 +35,11 @@ function Page() {
     <div className="relative grid w-full gap-4">
       <Table
         jsonData={jsonData}
-        setJsonData={setJsonData}
         rowSelection={rowSelection}
         setRowSelection={setRowSelection}
+        pagination={pagination}
+        setPagination={setPagination}
+        getRowId={(row) => row.youtubeId}
       />
       <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
     </div>

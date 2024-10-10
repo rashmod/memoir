@@ -1,12 +1,25 @@
-import { ColumnDef, flexRender, getCoreRowModel, RowSelectionState, useReactTable } from '@tanstack/react-table';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  PaginationState,
+  RowSelectionState,
+  TableOptions,
+  useReactTable,
+} from '@tanstack/react-table';
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import Pagination from '@/components/custom/pagination';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   rowSelection?: RowSelectionState;
-  setRowSelection?: (value: RowSelectionState | ((prevState: RowSelectionState) => RowSelectionState)) => void;
+  setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
+  pagination?: PaginationState;
+  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  getRowId: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -14,20 +27,30 @@ export function DataTable<TData, TValue>({
   data,
   rowSelection,
   setRowSelection,
+  pagination,
+  setPagination,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
+  const tableConfig: TableOptions<TData> = {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: { rowSelection },
-  });
+    state: {},
+  };
 
-  // console.log(rowSelection);
-  // console.log(table.getState().rowSelection);
-  // console.log(table.getSelectedRowModel().rows);
-  // console.log(table.getFilteredSelectedRowModel().rows);
-  // console.log(table.getGroupedSelectedRowModel().rows);
+  if (rowSelection) {
+    tableConfig.onRowSelectionChange = setRowSelection;
+    tableConfig.state!.rowSelection = rowSelection;
+    tableConfig.getRowId = getRowId;
+  }
+
+  if (pagination) {
+    tableConfig.getPaginationRowModel = getPaginationRowModel();
+    tableConfig.onPaginationChange = setPagination;
+    tableConfig.state!.pagination = pagination;
+  }
+
+  const table = useReactTable(tableConfig);
 
   // todo select row when user clicks on row when user is uploading files
 
@@ -65,6 +88,7 @@ export function DataTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
+      {pagination && <Pagination table={table} />}
     </div>
   );
 }
