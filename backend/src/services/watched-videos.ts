@@ -13,4 +13,8 @@ export default class WatchedVideoService {
   async create(videos: (typeof watchedVideo.$inferInsert)[]) {
     return await this.watchedVideoRepository.create(videos);
   }
+
+  async getAll(userId: string) {
+    return await this.watchedVideoRepository.getAll(userId);
+  }
 }

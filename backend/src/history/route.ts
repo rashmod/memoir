@@ -34,6 +34,7 @@ const historyService = new HistoryService(
 
 const historyController = new HistoryController(historyService);
 
+router.get("/history", historyController.getHistory);
 router.post("/add-file", historyController.addFile);
 router.post("/upload-history", historyController.uploadHistory);
 

@@ -160,4 +160,8 @@ export default class HistoryService {
 
     return "ok";
   }
+
+  async getHistory(userId: string) {
+    return await this.watchedVideoService.getAll(userId);
+  }
 }

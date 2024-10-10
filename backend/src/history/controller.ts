@@ -5,6 +5,14 @@ import HistoryService from "@/history/service";
 export default class HistoryController {
   constructor(private readonly historyService: HistoryService) {}
 
+  getHistory = async (req: express.Request, res: express.Response) => {
+    const userId = "0e4fce12-3606-4a66-b545-17b219682451";
+
+    const response = await this.historyService.getHistory(userId);
+
+    res.status(200).json({ message: "ok", data: response });
+  };
+
   addFile = async (req: express.Request, res: express.Response) => {
     const { history }: { history: HistoryVideo[] } = req.body;
 
