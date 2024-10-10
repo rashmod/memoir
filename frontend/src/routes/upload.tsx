@@ -27,7 +27,7 @@ function Page() {
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 100 });
 
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
@@ -88,8 +88,10 @@ function Page() {
       <FileUploader onUpload={onUpload} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       {(jsonData.length > 0 || tempData.length > 0) && (
-        <div className="space-y-4">
-          <Button onClick={() => uploadMutation.mutate(jsonData)}>Upload</Button>
+        <div className="w-full space-y-4">
+          <Button onClick={() => uploadMutation.mutate(jsonData)} disabled={uploadMutation.isPending}>
+            {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+          </Button>
           <div className="relative grid w-full gap-4">
             <Table
               jsonData={combinedData}
