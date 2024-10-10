@@ -39,7 +39,6 @@ function Page() {
         setRowSelection={setRowSelection}
         pagination={pagination}
         setPagination={setPagination}
-        getRowId={(row) => row.youtubeId}
       />
       <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
     </div>

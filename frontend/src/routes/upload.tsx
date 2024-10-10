@@ -114,7 +114,7 @@ function Page() {
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   function onDeleteSelected() {
-    setJsonData((prev) => prev.filter((item) => !rowSelection[item.youtubeId]));
+    setJsonData((prev) => prev.filter((_, index) => !rowSelection[index]));
     setRowSelection({});
   }
 
@@ -134,7 +134,6 @@ function Page() {
               setRowSelection={setRowSelection}
               pagination={pagination}
               setPagination={setPagination}
-              getRowId={(row) => row.youtubeId}
             />
             <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
           </div>

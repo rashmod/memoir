@@ -10,14 +10,12 @@ export default function Table({
   setRowSelection,
   pagination,
   setPagination,
-  getRowId,
 }: {
   jsonData: VideosSchema;
   rowSelection?: RowSelectionState;
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
   pagination?: PaginationState;
   setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
-  getRowId?: (row: VideoSchema) => string;
 }) {
   return (
     <DataTable
@@ -27,7 +25,6 @@ export default function Table({
       setRowSelection={setRowSelection}
       pagination={pagination}
       setPagination={setPagination}
-      getRowId={getRowId}
     />
   );
 }
