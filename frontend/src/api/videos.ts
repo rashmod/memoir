@@ -1,10 +1,8 @@
 import axios from 'axios';
 
-import { VideoSchema, VideosSchema } from '@/routes/upload';
+import { BasicVideo, MergedVideo } from '@/videos/types';
 
-async function addFile(
-  history: Pick<VideoSchema, 'title' | 'url' | 'time' | 'youtubeId'>[]
-): Promise<{ message: string; data: VideosSchema }> {
+async function addFile(history: BasicVideo[]): Promise<{ message: string; data: MergedVideo[] }> {
   const response = await axios.post('http://localhost:3000/api/add-file', { history });
 
   console.log(response.data);
@@ -12,7 +10,7 @@ async function addFile(
   return response.data;
 }
 
-async function uploadHistory(history: VideosSchema) {
+async function uploadHistory(history: MergedVideo[]) {
   const response = await axios.post('http://localhost:3000/api/upload-history', { history });
 
   console.log(response.data);

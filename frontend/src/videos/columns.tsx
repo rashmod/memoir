@@ -6,9 +6,9 @@ import NewTabLink from '@/components/custom/new-tab-link';
 
 import formatDuration from '@/lib/format-duration';
 
-import { VideoSchema } from '@/routes/upload';
+import { MergedVideo } from '@/videos/types';
 
-const columnHelper = createColumnHelper<VideoSchema>();
+const columnHelper = createColumnHelper<MergedVideo>();
 
 const columns = [
   columnHelper.display({
@@ -101,18 +101,25 @@ const columns = [
       );
     },
   }),
-  // columnHelper.accessor('channelImage', {
-  //   header: 'Channel Image',
-  //   cell: ({ cell }) => {
-  //     const value = cell.getValue();
-  //     if (value) return value;
-  //     return <Skeleton className="aspect-square h-16 rounded-full" />;
-  //   },
-  // }),
-  // {
-  //   accessorKey: 'tags',
-  //   header: 'Tags',
-  // },
-] as ColumnDef<VideoSchema>[];
+  columnHelper.accessor('channelAvatarUrl', {
+    header: 'Channel Avatar',
+    cell: ({ cell, row }) => {
+      const value = cell.getValue();
+      return (
+        <NewTabLink link={row.original.channelUrl}>
+          {value ? (
+            <img src={value} className="aspect-square h-16 rounded-full" />
+          ) : (
+            <Skeleton className="aspect-square h-16 rounded-full" />
+          )}
+        </NewTabLink>
+      );
+    },
+  }),
+  {
+    accessorKey: 'tags',
+    header: 'Tags',
+  },
+] as ColumnDef<MergedVideo>[];
 
 export default columns;

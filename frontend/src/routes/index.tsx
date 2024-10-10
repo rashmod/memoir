@@ -6,8 +6,8 @@ import history from '@/data/watch-history.json';
 
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 import filterJsonData from '@/lib/filter-json-data';
-import { JsonSchema, VideosSchema } from '@/routes/upload';
 import Table from '@/videos/table';
+import { ImportedVideo, MergedVideo } from '@/videos/types';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -16,10 +16,10 @@ export const Route = createFileRoute('/')({
 console.log((history as any[])[0]);
 console.log(Object.keys((history as any[])[0]));
 
-const data = filterJsonData((history as JsonSchema).slice(0, 50));
+const data = filterJsonData((history as ImportedVideo).slice(0, 50));
 
 function Page() {
-  const [jsonData, setJsonData] = useState<VideosSchema>(data);
+  const [jsonData, setJsonData] = useState<MergedVideo[]>(data);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });

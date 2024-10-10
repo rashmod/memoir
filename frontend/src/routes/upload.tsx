@@ -2,7 +2,6 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
-import { z } from 'zod';
 
 import videosApi from '@/api/videos';
 import filterJsonData from '@/lib/filter-json-data';
@@ -11,47 +10,11 @@ import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 import { Button } from '@/components/ui/button';
 import Table from '@/videos/table';
+import { importedVideoSchema, MergedVideo } from '@/videos/types';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
 });
-
-const jsonSchema = z.array(
-  z.object({
-    title: z.string(),
-    titleUrl: z.string().optional(),
-    time: z.string().datetime(),
-    subtitles: z
-      .array(
-        z.object({
-          name: z.string(),
-          url: z.string(),
-        })
-      )
-      .optional(),
-    details: z.any().optional(),
-  })
-);
-
-const videoSchema = z.object({
-  youtubeId: z.string(),
-  title: z.string(),
-  url: z.string(),
-  time: z.string().datetime(),
-  thumbnailUrl: z.string().optional(),
-  duration: z.number().optional(),
-  youtubeCreatedAt: z.date().optional(),
-  channelId: z.string().optional(),
-  channelName: z.string().optional(),
-  channelUrl: z.string().optional(),
-  channelAvatarUrl: z.string().optional(),
-});
-
-const videosSchema = z.array(videoSchema);
-
-export type JsonSchema = z.infer<typeof jsonSchema>;
-export type VideoSchema = z.infer<typeof videoSchema>;
-export type VideosSchema = z.infer<typeof videosSchema>;
 
 // TODO disable selection checkbox when data is being fetched
 // TODO handle uploads in multiple parts like multiple files for history
@@ -59,8 +22,8 @@ export type VideosSchema = z.infer<typeof videosSchema>;
 // TODO handle large amount of videos
 
 function Page() {
-  const [jsonData, setJsonData] = useState<VideosSchema>([]);
-  const [tempData, setTempData] = useState<VideosSchema[]>([]);
+  const [jsonData, setJsonData] = useState<MergedVideo[]>([]);
+  const [tempData, setTempData] = useState<MergedVideo[][]>([]);
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -89,10 +52,10 @@ function Page() {
         try {
           if (event.target?.result) {
             const parsedJson = JSON.parse(event.target.result as string);
-            const result = jsonSchema.safeParse(parsedJson);
+            const result = importedVideoSchema.safeParse(parsedJson);
 
             if (result.success) {
-              const formattedData: VideosSchema = filterJsonData(result.data);
+              const formattedData: MergedVideo[] = filterJsonData(result.data);
               setTempData((prev) => prev.concat([formattedData]));
               setError(undefined);
               addMutation.mutate(formattedData);

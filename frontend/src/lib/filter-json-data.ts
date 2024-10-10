@@ -1,6 +1,6 @@
-import { JsonSchema } from '@/routes/upload';
+import { ImportedVideo } from '@/videos/types';
 
-export default function filterJsonData(data: JsonSchema) {
+export default function filterJsonData(data: ImportedVideo) {
   return data
     .filter((item) => !item.details)
     .filter((item) => item.titleUrl)
