@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { count, desc, eq, max } from "drizzle-orm";
 
 import db from "@/db";
 import { channel, video, watchedVideo } from "@/db/schema";
@@ -9,12 +9,23 @@ export default class WatchedVideoRepository {
   }
 
   async getAll(userId: string) {
-    return await db
+    const subquery = db
       .select({
         youtubeId: watchedVideo.youtubeVideoId,
+        watchCount: count(watchedVideo.youtubeVideoId).as("watchCount"),
+        lastWatchedAt: max(watchedVideo.youtubeCreatedAt).as("lastWatchedAt"),
+      })
+      .from(watchedVideo)
+      .where(eq(watchedVideo.userId, userId))
+      .groupBy(watchedVideo.youtubeVideoId)
+      .as("subquery");
+
+    return await db
+      .select({
+        youtubeId: subquery.youtubeId,
         title: video.title,
         url: video.url,
-        time: watchedVideo.youtubeCreatedAt,
+        lastWatchedAt: subquery.lastWatchedAt,
         thumbnailUrl: video.thumbnailUrl,
         duration: video.duration,
         youtubeCreatedAt: video.youtubeCreatedAt,
@@ -22,10 +33,11 @@ export default class WatchedVideoRepository {
         channelName: channel.name,
         channelUrl: channel.url,
         channelAvatarUrl: channel.avatarUrl,
+        watchCount: subquery.watchCount,
       })
-      .from(watchedVideo)
-      .where(eq(watchedVideo.userId, userId))
-      .innerJoin(video, eq(watchedVideo.youtubeVideoId, video.youtubeId))
-      .innerJoin(channel, eq(channel.youtubeId, video.channelId));
+      .from(subquery)
+      .innerJoin(video, eq(subquery.youtubeId, video.youtubeId))
+      .innerJoin(channel, eq(channel.youtubeId, video.channelId))
+      .orderBy(desc(subquery.lastWatchedAt));
   }
 }
