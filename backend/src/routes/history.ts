@@ -1,16 +1,18 @@
 import express from "express";
 
-import VideoRepository from "@/repositories/video";
-import ChannelRepository from "@/repositories/channel";
-import WatchedVideoRepository from "@/repositories/watchedVideo";
-
-import YoutubeService from "@/services/youtube";
-import ChannelService from "@/services/channel";
-import WatchedVideoService from "@/services/watched-videos";
-import VideoService from "@/services/video";
-
-import HistoryController from "@/history/controller";
-import HistoryService from "@/history/service";
+import { HistoryController } from "@/controllers";
+import {
+  HistoryService,
+  YoutubeService,
+  VideoService,
+  ChannelService,
+  WatchedVideoService,
+} from "@/services";
+import {
+  VideoRepository,
+  ChannelRepository,
+  WatchedVideoRepository,
+} from "@/repositories";
 
 const router = express.Router();
 
@@ -34,7 +36,7 @@ const historyService = new HistoryService(
 
 const historyController = new HistoryController(historyService);
 
-router.get("/history", historyController.getHistory);
+router.get("/", historyController.getHistory);
 router.post("/add-file", historyController.addFile);
 router.post("/upload-history", historyController.uploadHistory);
 

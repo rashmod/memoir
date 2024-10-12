@@ -1,6 +1,6 @@
 import express from "express";
 
-import HistoryService from "@/history/service";
+import HistoryService from "@/services/history";
 
 export default class HistoryController {
   constructor(private readonly historyService: HistoryService) {}

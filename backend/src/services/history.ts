@@ -5,7 +5,7 @@ import ChannelService from "@/services/channel";
 import YoutubeService from "@/services/youtube";
 import WatchedVideoService from "@/services/watched-videos";
 
-import { HistoryVideo } from "@/history/controller";
+import { HistoryVideo } from "@/controllers/history";
 
 import parseISODuration from "@/lib/parse-iso-duration";
 import mergeItems from "@/lib/mergeItems";
