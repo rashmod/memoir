@@ -3,8 +3,9 @@ import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import Table from '@/videos/table';
 import videosApi from '@/api/videos';
+import { DataTable } from '@/components/custom/data-table';
+import { displayTableColumns } from '@/videos/columns';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -30,8 +31,9 @@ function Page() {
     <div className="relative grid w-full gap-4">
       {isLoading && <div>Loading...</div>}
       {data && (
-        <Table
-          jsonData={data.data}
+        <DataTable
+          data={data.data}
+          columns={displayTableColumns}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
           pagination={pagination}

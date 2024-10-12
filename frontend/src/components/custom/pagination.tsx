@@ -54,21 +54,6 @@ export default function Pagination<TData>({ table }: { table: Table<TData> }) {
         </select>
       </Button>
       <div className="flex items-center space-x-2">
-        <Button variant="outline" size="sm" asChild>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
-          >
-            {[10, 20, 30, 40, 50, 100].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                Show {pageSize}
-              </option>
-            ))}
-          </select>
-        </Button>
-
         <span className="text-nowrap">Go to page:</span>
         <DebouncedInput
           type="number"

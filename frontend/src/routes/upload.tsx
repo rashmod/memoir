@@ -6,11 +6,12 @@ import { useMemo, useState } from 'react';
 import videosApi from '@/api/videos';
 import filterJsonData from '@/lib/filter-json-data';
 
+import { Button } from '@/components/ui/button';
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
-import { Button } from '@/components/ui/button';
-import Table from '@/videos/table';
+import { DataTable } from '@/components/custom/data-table';
 import { importedVideoSchema, MergedVideo } from '@/videos/types';
+import { uploadTableColumns } from '@/videos/columns';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -93,8 +94,9 @@ function Page() {
             {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
           </Button>
           <div className="relative grid w-full gap-4">
-            <Table
-              jsonData={combinedData}
+            <DataTable
+              data={combinedData}
+              columns={uploadTableColumns}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
               pagination={pagination}
