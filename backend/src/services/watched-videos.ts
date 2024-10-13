@@ -17,4 +17,8 @@ export default class WatchedVideoService {
   async getAll(userId: string) {
     return await this.watchedVideoRepository.getAll(userId);
   }
+
+  async get(userId: string, youtubeId: string) {
+    return await this.watchedVideoRepository.get(userId, youtubeId);
+  }
 }

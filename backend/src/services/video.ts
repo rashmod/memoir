@@ -3,11 +3,7 @@ import chunkArray from "@/lib/chunk-array";
 import VideoRepository from "@/repositories/video";
 
 export default class VideoService {
-  videoRepository: VideoRepository;
-
-  constructor(videoRepository: VideoRepository) {
-    this.videoRepository = videoRepository;
-  }
+  constructor(private readonly videoRepository: VideoRepository) {}
 
   async bulkCreate(videos: (typeof video.$inferInsert)[][]) {
     return await Promise.all(videos.map((chunk) => this.create(chunk)));
@@ -30,5 +26,12 @@ export default class VideoService {
     }
 
     return [Array.from(videoIdSet), existingVideos] as const;
+  }
+
+  async get(videoId: string) {
+    const video = await this.videoRepository.get(videoId);
+    if (!video) throw new Error("Video not found");
+
+    return video;
   }
 }

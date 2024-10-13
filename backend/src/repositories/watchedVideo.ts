@@ -1,4 +1,4 @@
-import { count, desc, eq, max } from "drizzle-orm";
+import { and, count, desc, eq, max } from "drizzle-orm";
 
 import db from "@/db";
 import { channel, video, watchedVideo } from "@/db/schema";
@@ -39,5 +39,17 @@ export default class WatchedVideoRepository {
       .innerJoin(video, eq(subquery.youtubeId, video.youtubeId))
       .innerJoin(channel, eq(channel.youtubeId, video.channelId))
       .orderBy(desc(subquery.lastWatchedAt));
+  }
+
+  async get(userId: string, videoId: string) {
+    return await db
+      .select()
+      .from(watchedVideo)
+      .where(
+        and(
+          eq(watchedVideo.userId, userId),
+          eq(watchedVideo.youtubeVideoId, videoId),
+        ),
+      );
   }
 }

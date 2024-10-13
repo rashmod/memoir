@@ -164,4 +164,8 @@ export default class HistoryService {
   async getHistory(userId: string) {
     return await this.watchedVideoService.getAll(userId);
   }
+
+  async getVideoHistory(userId: string, videoId: string) {
+    return await this.watchedVideoService.get(userId, videoId);
+  }
 }

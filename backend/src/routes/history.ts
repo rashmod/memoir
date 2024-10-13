@@ -34,8 +34,9 @@ const historyService = new HistoryService(
   watchedVideoService,
 );
 
-const historyController = new HistoryController(historyService);
+const historyController = new HistoryController(historyService, videoService);
 
+router.get("/:videoId", historyController.getVideoHistory);
 router.get("/", historyController.getHistory);
 router.post("/add-file", historyController.addFile);
 router.post("/upload-history", historyController.uploadHistory);
