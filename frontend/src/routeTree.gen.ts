@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as UploadImport } from './routes/upload'
 import { Route as IndexImport } from './routes/index'
+import { Route as VideoIdImport } from './routes/video/$id'
 
 // Create/Update Routes
 
@@ -23,6 +24,11 @@ const UploadRoute = UploadImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const VideoIdRoute = VideoIdImport.update({
+  path: '/video/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -44,6 +50,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UploadImport
       parentRoute: typeof rootRoute
     }
+    '/video/$id': {
+      id: '/video/$id'
+      path: '/video/$id'
+      fullPath: '/video/$id'
+      preLoaderRoute: typeof VideoIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -52,36 +65,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/upload': typeof UploadRoute
+  '/video/$id': typeof VideoIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/upload': typeof UploadRoute
+  '/video/$id': typeof VideoIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/upload': typeof UploadRoute
+  '/video/$id': typeof VideoIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upload'
+  fullPaths: '/' | '/upload' | '/video/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upload'
-  id: '__root__' | '/' | '/upload'
+  to: '/' | '/upload' | '/video/$id'
+  id: '__root__' | '/' | '/upload' | '/video/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   UploadRoute: typeof UploadRoute
+  VideoIdRoute: typeof VideoIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   UploadRoute: UploadRoute,
+  VideoIdRoute: VideoIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +115,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/upload"
+        "/upload",
+        "/video/$id"
       ]
     },
     "/": {
@@ -105,6 +124,9 @@ export const routeTree = rootRoute
     },
     "/upload": {
       "filePath": "upload.tsx"
+    },
+    "/video/$id": {
+      "filePath": "video/$id.tsx"
     }
   }
 }

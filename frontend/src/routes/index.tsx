@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,9 +13,11 @@ export const Route = createFileRoute('/')({
 
 function Page() {
   const { data, isLoading } = useQuery({
-    queryKey: ['data'],
+    queryKey: ['history'],
     queryFn: videosApi.getHistory,
   });
+
+  const navigate = useNavigate();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 100 });
@@ -38,6 +40,7 @@ function Page() {
           setRowSelection={setRowSelection}
           pagination={pagination}
           setPagination={setPagination}
+          onRowClick={(row) => navigate({ to: `/video/${row.youtubeId}` })}
         />
       )}
       {/* <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} /> */}

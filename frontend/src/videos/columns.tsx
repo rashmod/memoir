@@ -8,6 +8,7 @@ import formatDuration from '@/lib/format-duration';
 
 import { FinalVideo, MergedVideo } from '@/videos/types';
 import { Badge } from '@/components/ui/badge';
+import formatDate from '@/lib/format-date';
 
 const uploadTableColumnHelper = createColumnHelper<MergedVideo>();
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
@@ -75,16 +76,8 @@ export const uploadTableColumns = [
     cell: ({ cell }) => {
       // TODO show relative time??
       const value = cell.getValue();
-      const date = new Date(value).toLocaleDateString(undefined, {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
-      const time = new Date(value).toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      });
+      const { date, time } = formatDate(value);
+
       return (
         <div className="min-w-20">
           <div>{date}</div>
@@ -181,16 +174,8 @@ export const displayTableColumns = [
     cell: ({ cell }) => {
       // TODO show relative time??
       const value = cell.getValue();
-      const date = new Date(value).toLocaleDateString(undefined, {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      });
-      const time = new Date(value).toLocaleTimeString(undefined, {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      });
+      const { date, time } = formatDate(value);
+
       return (
         <div className="min-w-28">
           <div>{date}</div>

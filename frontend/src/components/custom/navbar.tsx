@@ -16,7 +16,7 @@ export default function Navbar() {
           <h1 className="text-xl font-semibold">Memoir</h1>
         </header>
 
-        <div className="ml-auto flex gap-2 p-2">
+        <div className="ml-auto flex gap-2 p-2 pr-0">
           <Link to="/" className="[&.active>*]:font-bold">
             <Button variant="link" size="sm">
               Home

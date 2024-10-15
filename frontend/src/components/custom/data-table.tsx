@@ -19,6 +19,7 @@ interface DataTableProps<TData, TValue> {
   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
   pagination?: PaginationState;
   setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -28,6 +29,7 @@ export function DataTable<TData, TValue>({
   setRowSelection,
   pagination,
   setPagination,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const tableConfig: TableOptions<TData> = {
     data,
@@ -53,7 +55,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="rounded-md border">
-      <Pagination table={table} />
+      {pagination && <Pagination table={table} />}
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -71,7 +73,11 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                onClick={() => onRowClick?.(row.original)}
+              >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                 ))}
