@@ -9,6 +9,7 @@ import formatDuration from '@/lib/format-duration';
 import { FinalVideo, MergedVideo, HistoryVideo } from '@/videos/types';
 import { Badge } from '@/components/ui/badge';
 import formatDate from '@/lib/format-date';
+import LazyImage from '@/components/custom/lazy-image';
 
 const uploadTableColumnHelper = createColumnHelper<MergedVideo>();
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
@@ -46,7 +47,7 @@ export const uploadTableColumns = [
       return (
         <NewTabLink link={row.original.url}>
           {value ? (
-            <img src={value} className="aspect-video h-20 object-cover" />
+            <LazyImage src={value} className="aspect-video h-20 object-cover" />
           ) : (
             <Skeleton className="aspect-video h-20" />
           )}
@@ -104,7 +105,7 @@ export const uploadTableColumns = [
       return (
         <NewTabLink link={row.original.channelUrl}>
           {value ? (
-            <img src={value} className="aspect-square h-16 rounded-full" />
+            <LazyImage src={value} className="aspect-square h-16 rounded-full" />
           ) : (
             <Skeleton className="aspect-square h-16 rounded-full" />
           )}
@@ -148,8 +149,8 @@ export const displayTableColumns = [
       const value = cell.getValue();
 
       return (
-        <NewTabLink link={row.original.url}>
-          <img src={value} className="aspect-video h-20 object-cover" />
+        <NewTabLink link={row.original.url} className="block aspect-video h-20">
+          <LazyImage src={value} className="aspect-video h-20 bg-black object-contain" />
         </NewTabLink>
       );
     },
@@ -199,7 +200,7 @@ export const displayTableColumns = [
       const value = cell.getValue();
       return (
         <NewTabLink link={row.original.channelUrl}>
-          <img src={value} className="aspect-square h-16 rounded-full" />
+          <LazyImage src={value} className="aspect-square h-16 rounded-full" />
         </NewTabLink>
       );
     },
@@ -207,6 +208,8 @@ export const displayTableColumns = [
   displayTableColumnHelper.display({
     header: 'Tags',
     cell: ({ row }) => {
+      // TODO handle videos not watched case
+
       const watchCount = row.original.watchCount ?? 0;
       return (
         <div className="flex flex-wrap gap-1">
@@ -253,4 +256,4 @@ export const videoTableColumns = [
       );
     },
   }),
-] as ColumnDef<Video>[];
+] as ColumnDef<HistoryVideo>[];
