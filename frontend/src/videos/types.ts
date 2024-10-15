@@ -42,3 +42,8 @@ export type FinalVideo = Omit<DetailedVideo, 'time'> & {
   lastWatchedAt: string;
   watchCount?: number;
 };
+
+export type HistoryVideo = {
+  id: string;
+  youtubeCreatedAt: string;
+};

@@ -6,12 +6,13 @@ import NewTabLink from '@/components/custom/new-tab-link';
 
 import formatDuration from '@/lib/format-duration';
 
-import { FinalVideo, MergedVideo } from '@/videos/types';
+import { FinalVideo, MergedVideo, HistoryVideo } from '@/videos/types';
 import { Badge } from '@/components/ui/badge';
 import formatDate from '@/lib/format-date';
 
 const uploadTableColumnHelper = createColumnHelper<MergedVideo>();
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
+const videoTableColumnHelper = createColumnHelper<HistoryVideo>();
 
 export const uploadTableColumns = [
   uploadTableColumnHelper.display({
@@ -118,25 +119,25 @@ export const uploadTableColumns = [
 ] as ColumnDef<MergedVideo>[];
 
 export const displayTableColumns = [
-  displayTableColumnHelper.display({
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  }),
+  // displayTableColumnHelper.display({
+  //   id: 'select',
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // }),
   displayTableColumnHelper.display({
     header: 'index',
     cell: ({ cell }) => cell.row.index + 1,
@@ -215,3 +216,41 @@ export const displayTableColumns = [
     },
   }),
 ] as ColumnDef<FinalVideo>[];
+
+export const videoTableColumns = [
+  videoTableColumnHelper.display({
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllRowsSelected() || (table.getIsSomeRowsSelected() && 'indeterminate')}
+        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  }),
+  uploadTableColumnHelper.display({
+    header: 'index',
+    cell: ({ cell }) => cell.row.index + 1,
+  }),
+  videoTableColumnHelper.accessor('youtubeCreatedAt', {
+    header: 'Watched on',
+    cell: ({ cell }) => {
+      const value = cell.getValue();
+      const { date, time } = formatDate(value);
+      return (
+        <div className="min-w-28">
+          {date}, {time}
+        </div>
+      );
+    },
+  }),
+] as ColumnDef<Video>[];
