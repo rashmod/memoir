@@ -2,12 +2,14 @@ import { useDropzone } from 'react-dropzone';
 import { Upload } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import handleZipFile from '@/lib/handle-zip-file';
 
 export default function FileUploader({ onUpload }: { onUpload: (acceptedFiles: File[]) => void }) {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: onUpload,
+    // onDrop: onUpload,
+    onDrop: handleZipFile,
     accept: {
-      'application/json': ['.json'],
+      'application/zip': ['.zip'],
     },
   });
 
