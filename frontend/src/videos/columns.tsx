@@ -9,14 +9,81 @@ import LazyImage from '@/components/custom/lazy-image';
 import formatDuration from '@/lib/format-duration';
 import formatDate from '@/lib/format-date';
 
-import { FinalVideo, MergedVideo, HistoryVideo } from '@/types/video';
+import { FinalVideo, HistoryVideo, BasicVideo, DetailedVideo } from '@/types/video';
 
-const uploadTableColumnHelper = createColumnHelper<MergedVideo>();
+const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideo>();
+const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideo>();
+
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
 const videoTableColumnHelper = createColumnHelper<HistoryVideo>();
 
-export const uploadTableColumns = [
-  uploadTableColumnHelper.display({
+export const basicWatchHistoryColumns = [
+  basicWatchHistoryColumnHelper.display({
+    id: 'select',
+    header: () => <Checkbox disabled aria-label="Select all" />,
+    cell: () => <Checkbox disabled aria-label="Select row" />,
+  }),
+  basicWatchHistoryColumnHelper.display({
+    header: 'index',
+    cell: ({ cell }) => cell.row.index + 1,
+  }),
+  basicWatchHistoryColumnHelper.display({
+    header: 'Thumbnail',
+    cell: ({ row }) => (
+      <NewTabLink link={row.original.url}>
+        <Skeleton className="aspect-video h-20" />
+      </NewTabLink>
+    ),
+  }),
+  basicWatchHistoryColumnHelper.accessor('title', {
+    header: 'Title',
+    cell: ({ cell, row }) => {
+      const value = cell.getValue();
+
+      return <NewTabLink link={row.original.url}>{value}</NewTabLink>;
+    },
+  }),
+  basicWatchHistoryColumnHelper.display({
+    header: 'Duration',
+    cell: () => <Skeleton className="h-4 w-20" />,
+  }),
+  basicWatchHistoryColumnHelper.accessor('time', {
+    header: 'Watched on',
+    cell: ({ cell }) => {
+      // TODO show relative time??
+      const value = cell.getValue();
+      const { date, time } = formatDate(value);
+
+      return (
+        <div className="min-w-20">
+          <div>{date}</div>
+          <div className="text-muted-foreground">{time}</div>
+        </div>
+      );
+    },
+  }),
+  basicWatchHistoryColumnHelper.accessor('channelName', {
+    header: 'Channel Name',
+    cell: ({ cell, row }) => {
+      const value = cell.getValue();
+
+      return (
+        <NewTabLink link={row.original.channelUrl}>{value ? value : <Skeleton className="h-4 w-32" />}</NewTabLink>
+      );
+    },
+  }),
+  basicWatchHistoryColumnHelper.display({
+    header: 'Channel Avatar',
+    cell: ({ row }) => (
+      <NewTabLink link={row.original.channelUrl}>
+        <Skeleton className="aspect-square h-16 rounded-full" />
+      </NewTabLink>
+    ),
+  }),
+] as ColumnDef<BasicVideo>[];
+
+export const detailedWatchHistoryColumns = [
+  detailedWatchHistoryColumnHelper.display({
     id: 'select',
     header: ({ table }) => (
       <Checkbox
@@ -35,11 +102,11 @@ export const uploadTableColumns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  uploadTableColumnHelper.display({
+  detailedWatchHistoryColumnHelper.display({
     header: 'index',
     cell: ({ cell }) => cell.row.index + 1,
   }),
-  uploadTableColumnHelper.accessor('thumbnailUrl', {
+  detailedWatchHistoryColumnHelper.accessor('thumbnailUrl', {
     header: 'Thumbnail',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -55,7 +122,7 @@ export const uploadTableColumns = [
       );
     },
   }),
-  uploadTableColumnHelper.accessor('title', {
+  detailedWatchHistoryColumnHelper.accessor('title', {
     header: 'Title',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -63,7 +130,7 @@ export const uploadTableColumns = [
       return <NewTabLink link={row.original.url}>{value}</NewTabLink>;
     },
   }),
-  uploadTableColumnHelper.accessor('duration', {
+  detailedWatchHistoryColumnHelper.accessor('duration', {
     header: 'Duration',
     cell: ({ cell }) => {
       const value = cell.getValue();
@@ -73,7 +140,7 @@ export const uploadTableColumns = [
       return formatDuration(value);
     },
   }),
-  uploadTableColumnHelper.accessor('time', {
+  detailedWatchHistoryColumnHelper.accessor('time', {
     header: 'Watched on',
     cell: ({ cell }) => {
       // TODO show relative time??
@@ -88,7 +155,7 @@ export const uploadTableColumns = [
       );
     },
   }),
-  uploadTableColumnHelper.accessor('channelName', {
+  detailedWatchHistoryColumnHelper.accessor('channelName', {
     header: 'Channel Name',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -98,7 +165,7 @@ export const uploadTableColumns = [
       );
     },
   }),
-  uploadTableColumnHelper.accessor('channelAvatarUrl', {
+  detailedWatchHistoryColumnHelper.accessor('channelAvatarUrl', {
     header: 'Channel Avatar',
     cell: ({ cell, row }) => {
       const value = cell.getValue();
@@ -117,7 +184,7 @@ export const uploadTableColumns = [
     accessorKey: 'tags',
     header: 'Tags',
   },
-] as ColumnDef<MergedVideo>[];
+] as ColumnDef<BasicVideo>[];
 
 export const displayTableColumns = [
   // displayTableColumnHelper.display({
@@ -240,7 +307,7 @@ export const videoTableColumns = [
     enableSorting: false,
     enableHiding: false,
   }),
-  uploadTableColumnHelper.display({
+  videoTableColumnHelper.display({
     header: 'index',
     cell: ({ cell }) => cell.row.index + 1,
   }),

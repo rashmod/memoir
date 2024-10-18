@@ -4,10 +4,7 @@ import processFile from '@/lib/process-file';
 import processPlaylist from '@/lib/process-playlist';
 import { uploadedData } from '@/routes/upload';
 
-export default function handleZipFile(
-  acceptedFiles: File[],
-  setData: React.Dispatch<React.SetStateAction<uploadedData>>
-) {
+export default function handleZipFile(acceptedFiles: File[], setData: (data: uploadedData) => void) {
   const [zipFile] = acceptedFiles;
 
   if (!zipFile) return;

@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 
 import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
-import { uploadTableColumns } from '@/videos/columns';
+import { basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/columns';
 
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/custom/data-table';
@@ -25,11 +25,6 @@ export type uploadedData = {
 export const Route = createFileRoute('/upload')({
   component: Page,
 });
-
-// TODO disable selection checkbox when data is being fetched
-// TODO handle uploads in multiple parts like multiple files for history
-// TODO what should be done for tempdata
-// TODO handle large amount of videos
 
 function Page() {
   const [jsonData, setJsonData] = useState<uploadedData>({ history: [], playlists: [], subscriptions: [] });
@@ -54,11 +49,18 @@ function Page() {
     setRowSelection({});
   }
 
-  const combinedData = useMemo(() => jsonData.concat(tempData.flat()), [jsonData, tempData]);
+  console.log(jsonData);
 
   return (
     <section className="grid place-items-center gap-8">
-      <FileUploader onUpload={(files) => handleZipFile(files, setJsonData)} />
+      <FileUploader
+        onUpload={(files) => {
+          handleZipFile(files, (data) => {
+            setJsonData(data);
+            addMutation.mutate(data.history);
+          });
+        }}
+      />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
       {jsonData.history.length > 0 && (
         <div className="w-full space-y-4">
@@ -68,7 +70,7 @@ function Page() {
           <div className="relative grid w-full gap-4">
             <DataTable
               data={jsonData.history}
-              columns={uploadTableColumns}
+              columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
               pagination={pagination}
@@ -81,64 +83,3 @@ function Page() {
     </section>
   );
 }
-
-// console.log(history.length);
-// console.log('with title url');
-// console.log(
-//   history.find((item) => item.titleUrl),
-//   history.filter((item) => item.titleUrl)
-// );
-// console.log('without title url');
-// console.log(
-//   history.find((item) => !item.titleUrl),
-//   history.filter((item) => !item.titleUrl)
-// );
-// console.log('with details');
-// console.log(
-//   history.find((item) => item.details),
-//   history.filter((item) => item.details)
-// );
-// console.log('without details');
-// console.log(
-//   history.find((item) => !item.details),
-//   history.filter((item) => !item.details)
-// );
-// console.log('with subtitles');
-// console.log(
-//   history.find((item) => item.subtitles),
-//   history.filter((item) => item.subtitles)
-// );
-// console.log('without subtitles');
-// console.log(
-//   history.find((item) => !item.subtitles),
-//   history.filter((item) => !item.subtitles)
-// );
-// console.log('without subtitles and details');
-// console.log(
-//   history.find((item) => !item.subtitles && !item.details),
-//   history.filter((item) => !item.subtitles && !item.details)
-// );
-// console.log('shorts with subtitles field');
-// console.log(
-//   history.filter((item) => {
-//     if (!item.titleUrl) return;
-//     const [, id] = item.titleUrl.split('=');
-//     return ['g23GHqJje40', '0n0j3D9iP0Q', '3jgRgleRNhs'].find((x) => x === id);
-//   })
-// );
-// console.log('shorts without subtitles field');
-// console.log(
-//   history.filter((item) => {
-//     if (!item.titleUrl) return;
-//     const [, id] = item.titleUrl.split('=');
-//     return !item.subtitles && !item.details && ['LuVLK2q3N8o', 'hNgEP8Y-oto', 'wd04ZtAvfB4'].find((x) => x === id);
-//   })
-// );
-// console.log('videos without subtitles field');
-// console.log(
-//   history.filter((item) => {
-//     if (!item.titleUrl) return;
-//     const [, id] = item.titleUrl.split('=');
-//     return !item.subtitles && !item.details && ['SgEbBemhzNE', '6oZhoWb1D9Y', 'm3KTXh5mvTA'].find((x) => x === id);
-//   })
-// );
