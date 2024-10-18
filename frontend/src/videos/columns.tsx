@@ -2,14 +2,14 @@ import { ColumnDef, createColumnHelper } from '@tanstack/react-table';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import NewTabLink from '@/components/custom/new-tab-link';
+import LazyImage from '@/components/custom/lazy-image';
 
 import formatDuration from '@/lib/format-duration';
-
-import { FinalVideo, MergedVideo, HistoryVideo } from '@/videos/types';
-import { Badge } from '@/components/ui/badge';
 import formatDate from '@/lib/format-date';
-import LazyImage from '@/components/custom/lazy-image';
+
+import { FinalVideo, MergedVideo, HistoryVideo } from '@/types/video';
 
 const uploadTableColumnHelper = createColumnHelper<MergedVideo>();
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();

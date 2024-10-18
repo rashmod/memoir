@@ -1,6 +1,6 @@
-import { ImportedVideo } from '@/videos/types';
+import { WatchHistory } from '@/types/uploads/watch-history';
 
-export default function filterJsonData(data: ImportedVideo) {
+export default function filterJsonData(data: WatchHistory) {
   return data
     .filter(hasNoDetails)
     .filter((item) => 'titleUrl' in item)
@@ -18,6 +18,6 @@ export default function filterJsonData(data: ImportedVideo) {
     });
 }
 
-function hasNoDetails(item: ImportedVideo[number]): item is Exclude<typeof item, { details: any }> {
+function hasNoDetails(item: WatchHistory[number]): item is Exclude<typeof item, { details: any }> {
   return !('details' in item);
 }

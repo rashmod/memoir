@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 import { DataTable } from '@/components/custom/data-table';
-import { importedVideoSchema, MergedVideo } from '@/videos/types';
+import { watchHistorySchema, WatchHistory } from '@/types/uploads/watch-history';
 import { uploadTableColumns } from '@/videos/columns';
+import { MergedVideo } from '@/types/video';
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -53,7 +54,7 @@ function Page() {
         try {
           if (event.target?.result) {
             const parsedJson = JSON.parse(event.target.result as string);
-            const result = importedVideoSchema.safeParse(parsedJson);
+            const result = watchHistorySchema.safeParse(parsedJson);
 
             if (result.success) {
               const formattedData: MergedVideo[] = filterJsonData(result.data);

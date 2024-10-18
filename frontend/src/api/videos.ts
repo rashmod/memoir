@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { BasicVideo, FinalVideo, MergedVideo } from '@/videos/types';
+import { BasicVideo, DetailedVideo, FinalVideo } from '@/types/video';
 
 async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/history');
@@ -9,14 +9,14 @@ async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   return response.data;
 }
 
-async function addFile(history: BasicVideo[]): Promise<{ message: string; data: MergedVideo[] }> {
+async function addFile(history: BasicVideo[]): Promise<{ message: string; data: DetailedVideo[] }> {
   const response = await axios.post('http://localhost:3000/api/history/add-file', { history });
   console.log(response.data);
 
   return response.data;
 }
 
-async function uploadHistory(history: MergedVideo[]) {
+async function uploadHistory(history: BasicVideo[]) {
   const response = await axios.post('http://localhost:3000/api/history/upload-history', { history });
   console.log(response.data);
 
