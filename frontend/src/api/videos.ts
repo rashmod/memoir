@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { BasicVideo, DetailedVideo, FinalVideo } from '@/types/video';
+import { BasicVideo, DetailedVideo, FinalVideo } from '@/types/table/video';
 
 async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/history');

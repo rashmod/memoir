@@ -10,18 +10,19 @@ import { basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 import { DataTable } from '@/components/custom/data-table';
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 
-import { Subscription } from '@/types/uploads/subscription';
-import { Playlist, PlaylistCatalog } from '@/types/uploads/playlist';
-import { BasicVideo, DetailedVideo } from '@/types/video';
+import { BasicPlaylist } from '@/types/table/playlist';
+import { BasicVideo, DetailedVideo } from '@/types/table/video';
+import { BasicSubscription } from '@/types/table/subscription';
 
 export type uploadedData = {
   history: BasicVideo[] | DetailedVideo[];
-  playlists: (PlaylistCatalog[number] & { videos: Playlist })[];
-  subscriptions: Subscription;
+  playlists: BasicPlaylist[];
+  subscriptions: BasicSubscription[];
 };
 
 export const Route = createFileRoute('/upload')({

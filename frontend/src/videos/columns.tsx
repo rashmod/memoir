@@ -9,7 +9,7 @@ import LazyImage from '@/components/custom/lazy-image';
 import formatDuration from '@/lib/format-duration';
 import formatDate from '@/lib/format-date';
 
-import { FinalVideo, HistoryVideo, BasicVideo, DetailedVideo } from '@/types/video';
+import { FinalVideo, HistoryVideo, BasicVideo, DetailedVideo } from '@/types/table/video';
 
 const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideo>();
 const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideo>();

@@ -1,7 +1,7 @@
 import { Playlist, PlaylistCatalog, playlistCatalogSchema, playlistSchema } from '@/types/uploads/playlist';
 import { Subscription, subscriptionSchema } from '@/types/uploads/subscription';
 import { watchHistorySchema } from '@/types/uploads/watch-history';
-import { BasicVideo } from '@/types/video';
+import { BasicVideo } from '@/types/table/video';
 import JSZip from 'jszip';
 import processJsonFile from './process-json-file';
 import processCsvFile from './process-csv-file';
