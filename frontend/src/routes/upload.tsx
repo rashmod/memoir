@@ -4,15 +4,23 @@ import { PaginationState, RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 
 import videosApi from '@/api/videos';
-import filterJsonData from '@/lib/filter-json-data';
+import handleZipFile from '@/lib/handle-zip-file';
+import { uploadTableColumns } from '@/videos/columns';
 
 import { Button } from '@/components/ui/button';
+import { DataTable } from '@/components/custom/data-table';
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
-import { DataTable } from '@/components/custom/data-table';
-import { watchHistorySchema, WatchHistory } from '@/types/uploads/watch-history';
-import { uploadTableColumns } from '@/videos/columns';
-import { MergedVideo } from '@/types/video';
+
+import { Subscription } from '@/types/uploads/subscription';
+import { Playlist, PlaylistCatalog } from '@/types/uploads/playlist';
+import { BasicVideo, DetailedVideo } from '@/types/video';
+
+export type uploadedData = {
+  history: BasicVideo[] | DetailedVideo[];
+  playlists: (PlaylistCatalog[number] & { videos: Playlist })[];
+  subscriptions: Subscription;
+};
 
 export const Route = createFileRoute('/upload')({
   component: Page,
@@ -24,8 +32,7 @@ export const Route = createFileRoute('/upload')({
 // TODO handle large amount of videos
 
 function Page() {
-  const [jsonData, setJsonData] = useState<MergedVideo[]>([]);
-  const [tempData, setTempData] = useState<MergedVideo[][]>([]);
+  const [jsonData, setJsonData] = useState<uploadedData>({ history: [], playlists: [], subscriptions: [] });
   const [error, setError] = useState<string>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
@@ -33,53 +40,17 @@ function Page() {
 
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
-    onSuccess: (data) => {
-      setJsonData((prev) => prev.concat(data.data));
-      setTempData((prev) => {
-        prev.shift();
-        return prev;
-      });
-    },
+    onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data })),
   });
 
   const uploadMutation = useMutation({
     mutationFn: videosApi.uploadHistory,
   });
 
-  function onUpload(acceptedFiles: File[]) {
-    acceptedFiles.forEach((file) => {
-      const reader = new FileReader();
-
-      reader.onload = (event: ProgressEvent<FileReader>) => {
-        try {
-          if (event.target?.result) {
-            const parsedJson = JSON.parse(event.target.result as string);
-            const result = watchHistorySchema.safeParse(parsedJson);
-
-            if (result.success) {
-              const formattedData: MergedVideo[] = filterJsonData(result.data);
-              setTempData((prev) => prev.concat([formattedData]));
-              setError(undefined);
-              addMutation.mutate(formattedData);
-            } else {
-              setError('Invalid json structure');
-              console.error(result.error);
-            }
-          }
-        } catch (error) {
-          setError('Invalid json file');
-          console.error('Error parsing JSON file:', error);
-        }
-      };
-
-      reader.readAsText(file);
-    });
-  }
-
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   function onDeleteSelected() {
-    setJsonData((prev) => prev.filter((_, index) => !rowSelection[index]));
+    setJsonData((prev) => ({ ...prev, history: prev.history.filter((_, index) => !rowSelection[index]) }));
     setRowSelection({});
   }
 
@@ -87,16 +58,16 @@ function Page() {
 
   return (
     <section className="grid place-items-center gap-8">
-      <FileUploader onUpload={onUpload} />
+      <FileUploader onUpload={(files) => handleZipFile(files, setJsonData)} />
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {(jsonData.length > 0 || tempData.length > 0) && (
+      {jsonData.history.length > 0 && (
         <div className="w-full space-y-4">
-          <Button onClick={() => uploadMutation.mutate(jsonData)} disabled={uploadMutation.isPending}>
+          <Button onClick={() => uploadMutation.mutate(jsonData.history)} disabled={uploadMutation.isPending}>
             {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
           </Button>
           <div className="relative grid w-full gap-4">
             <DataTable
-              data={combinedData}
+              data={jsonData.history}
               columns={uploadTableColumns}
               rowSelection={rowSelection}
               setRowSelection={setRowSelection}
@@ -110,3 +81,64 @@ function Page() {
     </section>
   );
 }
+
+// console.log(history.length);
+// console.log('with title url');
+// console.log(
+//   history.find((item) => item.titleUrl),
+//   history.filter((item) => item.titleUrl)
+// );
+// console.log('without title url');
+// console.log(
+//   history.find((item) => !item.titleUrl),
+//   history.filter((item) => !item.titleUrl)
+// );
+// console.log('with details');
+// console.log(
+//   history.find((item) => item.details),
+//   history.filter((item) => item.details)
+// );
+// console.log('without details');
+// console.log(
+//   history.find((item) => !item.details),
+//   history.filter((item) => !item.details)
+// );
+// console.log('with subtitles');
+// console.log(
+//   history.find((item) => item.subtitles),
+//   history.filter((item) => item.subtitles)
+// );
+// console.log('without subtitles');
+// console.log(
+//   history.find((item) => !item.subtitles),
+//   history.filter((item) => !item.subtitles)
+// );
+// console.log('without subtitles and details');
+// console.log(
+//   history.find((item) => !item.subtitles && !item.details),
+//   history.filter((item) => !item.subtitles && !item.details)
+// );
+// console.log('shorts with subtitles field');
+// console.log(
+//   history.filter((item) => {
+//     if (!item.titleUrl) return;
+//     const [, id] = item.titleUrl.split('=');
+//     return ['g23GHqJje40', '0n0j3D9iP0Q', '3jgRgleRNhs'].find((x) => x === id);
+//   })
+// );
+// console.log('shorts without subtitles field');
+// console.log(
+//   history.filter((item) => {
+//     if (!item.titleUrl) return;
+//     const [, id] = item.titleUrl.split('=');
+//     return !item.subtitles && !item.details && ['LuVLK2q3N8o', 'hNgEP8Y-oto', 'wd04ZtAvfB4'].find((x) => x === id);
+//   })
+// );
+// console.log('videos without subtitles field');
+// console.log(
+//   history.filter((item) => {
+//     if (!item.titleUrl) return;
+//     const [, id] = item.titleUrl.split('=');
+//     return !item.subtitles && !item.details && ['SgEbBemhzNE', '6oZhoWb1D9Y', 'm3KTXh5mvTA'].find((x) => x === id);
+//   })
+// );

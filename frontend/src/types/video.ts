@@ -3,7 +3,7 @@ export type BasicVideo = {
   title: string;
   url: string;
   time: string;
-  channelTitle: string | undefined;
+  channelName: string | undefined;
   channelUrl: string | undefined;
 };
 
