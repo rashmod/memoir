@@ -7,7 +7,9 @@ import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
 import { basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/columns';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { DataTable } from '@/components/custom/data-table';
 import FileUploader from '@/components/custom/file-uploader';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
@@ -67,17 +69,25 @@ function Page() {
           <Button onClick={() => uploadMutation.mutate(jsonData.history)} disabled={uploadMutation.isPending}>
             {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
           </Button>
-          <div className="relative grid w-full gap-4">
-            <DataTable
-              data={jsonData.history}
-              columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
-              rowSelection={rowSelection}
-              setRowSelection={setRowSelection}
-              pagination={pagination}
-              setPagination={setPagination}
-            />
-            <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
-          </div>
+          <Accordion className="relative grid w-full gap-4" type="multiple">
+            <AccordionItem value="watch-history" className="border-0">
+              <AccordionTrigger className="group rounded-md bg-muted-foreground px-4 py-2 text-sm font-normal text-white hover:no-underline data-[state=open]:rounded-b-none">
+                <p className="group-hover:underline">Watch History</p>
+                <Badge className="-mb-0.5 font-medium hover:no-underline">{jsonData.history.length}</Badge>
+              </AccordionTrigger>
+              <AccordionContent>
+                <DataTable
+                  data={jsonData.history}
+                  columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
+                  rowSelection={rowSelection}
+                  setRowSelection={setRowSelection}
+                  pagination={pagination}
+                  setPagination={setPagination}
+                />
+                <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
     </section>
