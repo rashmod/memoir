@@ -1,19 +1,16 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { PaginationState, RowSelectionState } from '@tanstack/react-table';
-import { useMemo, useState } from 'react';
+import { RowSelectionState } from '@tanstack/react-table';
+import { useState } from 'react';
 
 import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
-import { basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/columns';
+import { basicPlaylistColumns, basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/columns';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-import { DataTable } from '@/components/custom/data-table';
+import { Accordion } from '@/components/ui/accordion';
 import FileUploader from '@/components/custom/file-uploader';
-import SelectionActionBar from '@/components/custom/selection-action-bar';
+import TableAccordionItem from '@/components/custom/table-accordion-item';
 
 import { BasicPlaylist } from '@/types/table/playlist';
 import { BasicVideo, DetailedVideo } from '@/types/table/video';
@@ -33,9 +30,6 @@ function Page() {
   const [jsonData, setJsonData] = useState<uploadedData>({ history: [], playlists: [], subscriptions: [] });
   const [error, setError] = useState<string>();
 
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 100 });
-
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
     onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data })),
@@ -45,49 +39,73 @@ function Page() {
     mutationFn: videosApi.uploadHistory,
   });
 
-  const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
-
   function onDeleteSelected() {
     setJsonData((prev) => ({ ...prev, history: prev.history.filter((_, index) => !rowSelection[index]) }));
-    setRowSelection({});
   }
+
+  const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
+  const watchLater = watchLaterIndex > -1 ? jsonData.playlists[watchLaterIndex] : undefined;
+
+  const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
 
   console.log(jsonData);
 
   return (
     <section className="grid place-items-center gap-8">
-      <FileUploader
-        onUpload={(files) => {
-          handleZipFile(files, (data) => {
-            setJsonData(data);
-            addMutation.mutate(data.history);
-          });
-        }}
-      />
+      {!hasData && (
+        <FileUploader
+          onUpload={(files) => {
+            handleZipFile(files, (data) => {
+              setJsonData(data);
+              addMutation.mutate(data.history);
+            });
+          }}
+        />
+      )}
+
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
-      {jsonData.history.length > 0 && (
+
+      {hasData && (
         <div className="w-full space-y-4">
           <Button onClick={() => uploadMutation.mutate(jsonData.history)} disabled={uploadMutation.isPending}>
             {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
           </Button>
-          <Accordion className="relative grid w-full gap-4" type="multiple">
-            <AccordionItem value="watch-history" className="border-0">
-              <AccordionTrigger className="group rounded-md bg-muted-foreground px-4 py-2 text-sm font-normal text-white hover:no-underline data-[state=open]:rounded-b-none">
-                <p className="group-hover:underline">Watch History</p>
-                <Badge className="-mb-0.5 font-medium hover:no-underline">{jsonData.history.length}</Badge>
-              </AccordionTrigger>
-              <AccordionContent>
-                <DataTable
-                  data={jsonData.history}
-                  columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
-                  rowSelection={rowSelection}
-                  setRowSelection={setRowSelection}
-                  pagination={pagination}
-                  setPagination={setPagination}
-                />
-                <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
-              </AccordionContent>
-            </AccordionItem>
+
+          <Accordion className="grid w-full gap-4" type="multiple" defaultValue={['watch-history']}>
+            <TableAccordionItem
+              id="watch-history"
+              collection="history"
+              data={jsonData.history}
+              title="Watch History"
+              columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
+              onDeleteSelectedRows={onDeleteSelectedRows}
+            />
+
+            {watchLater && (
+              <TableAccordionItem
+                id={`playlist-${watchLater.id}`}
+                collection="playlists"
+                title={watchLater.title}
+                columns={basicPlaylistColumns}
+                data={watchLater.videos}
+                onDeleteSelectedRows={onDeleteSelectedRows}
+              />
+            )}
+
+            {jsonData.playlists.map(
+              (playlist, i) =>
+                i !== watchLaterIndex && (
+                  <TableAccordionItem
+                    key={playlist.id}
+                    collection="playlists"
+                    id={`playlist-${playlist.id}`}
+                    title={playlist.title}
+                    columns={basicPlaylistColumns}
+                    data={playlist.videos}
+                    onDeleteSelectedRows={onDeleteSelectedRows}
+                  />
+                )
+            )}
           </Accordion>
         </div>
       )}

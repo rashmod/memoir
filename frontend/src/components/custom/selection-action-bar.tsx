@@ -24,19 +24,27 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function SelectionActionBar({
   selectedCount,
   onDeleteSelected,
+  className,
 }: {
   selectedCount: number;
   onDeleteSelected: () => void;
+  className?: string;
 }) {
   const [openEditDialog, setOpenEditDialog] = useState(false);
 
   return (
     selectedCount > 0 && (
-      <div className="sticky bottom-5 z-50 justify-self-center rounded-md border bg-muted/95 px-4 py-1 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-muted/30">
+      <div
+        className={cn(
+          'sticky bottom-5 z-50 justify-self-center rounded-md border bg-muted/95 px-4 py-1 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-muted/30',
+          className
+        )}
+      >
         <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
           <DialogTrigger asChild>
             <Button variant="link" size="sm">

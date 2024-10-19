@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
   // todo select row when user clicks on row when user is uploading files
 
   return (
-    <div className="rounded-md rounded-t-none border">
+    <div>
       {pagination && <Pagination table={table} />}
       <Table>
         <TableHeader>
