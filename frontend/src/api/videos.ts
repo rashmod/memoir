@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { BasicVideoNew, DetailedVideoNew, FinalVideo } from '@/types/table/video';
+import { DetailedPlaylist } from '@/types/table/playlist';
 
 async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/history');
@@ -18,8 +19,15 @@ async function uploadHistory(history: BasicVideoNew[]) {
 
 async function addFile(upload: {
   history: { videoId: string; watchedAt: string }[];
-  playlists: { videoId: string; addedAt: string }[][];
-}): Promise<{ message: string; data: { history: DetailedVideoNew[] } }> {
+  playlists: {
+    id: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+    visibility: string;
+    videos: { videoId: string; addedAt: string }[];
+  }[];
+}): Promise<{ message: string; data: { history: DetailedVideoNew[]; playlists: DetailedPlaylist[] } }> {
   const response = await axios.post('http://localhost:3000/api/upload/add-file', { upload });
   console.log(response.data);
 
