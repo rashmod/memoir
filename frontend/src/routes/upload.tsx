@@ -24,23 +24,36 @@ import { BasicSubscription } from '@/types/table/subscription';
 import getUniqueVideos from '@/lib/get-unique-videos';
 import { deleteSelectedRows } from '@/lib/delete-selected-rows';
 
-export type uploadedData = {
-  history: BasicVideo[] | DetailedVideo[];
-  playlists: BasicPlaylist[];
-  subscriptions: BasicSubscription[];
-};
+export type uploadedData =
+  | {
+      key: 'basic';
+      history: BasicVideoNew[];
+      playlists: BasicPlaylist[];
+      subscriptions: BasicSubscription[];
+    }
+  | {
+      key: 'detailed';
+      history: DetailedVideoNew[];
+      playlists: BasicPlaylist[];
+      subscriptions: BasicSubscription[];
+    };
 
 export const Route = createFileRoute('/upload')({
   component: Page,
 });
 
 function Page() {
-  const [jsonData, setJsonData] = useState<uploadedData>({ history: [], playlists: [], subscriptions: [] });
+  const [jsonData, setJsonData] = useState<uploadedData>({
+    key: 'basic',
+    history: [],
+    playlists: [],
+    subscriptions: [],
+  });
   const [error, setError] = useState<string>();
 
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
-    onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data })),
+    onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data, key: 'detailed' })),
   });
 
   const uploadMutation = useMutation({
@@ -51,6 +64,8 @@ function Page() {
   const watchLater = watchLaterIndex > -1 ? jsonData.playlists[watchLaterIndex] : undefined;
 
   const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
+
+  const isDetailedData = jsonData.key === 'detailed';
 
   const uniqueVideos = useMemo(() => getUniqueVideos(jsonData), [jsonData]);
 
@@ -95,19 +110,35 @@ function Page() {
               }
             />
 
-            <TableAccordionItem
-              id="watch-history"
-              data={jsonData.history}
-              title="Watch History"
-              columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
-              onDeleteSelectedRows={(selected) =>
-                deleteSelectedRows({
-                  setData: setJsonData,
-                  selected,
-                  key: 'history',
-                })
-              }
-            />
+            {isDetailedData ? (
+              <TableAccordionItem
+                id="watch-history"
+                data={jsonData.history}
+                title="Watch History"
+                columns={detailedWatchHistoryColumns}
+                onDeleteSelectedRows={(selected) =>
+                  deleteSelectedRows({
+                    setData: setJsonData,
+                    selected,
+                    key: 'history',
+                  })
+                }
+              />
+            ) : (
+              <TableAccordionItem
+                id="watch-history"
+                data={jsonData.history}
+                title="Watch History"
+                columns={basicWatchHistoryColumns}
+                onDeleteSelectedRows={(selected) =>
+                  deleteSelectedRows({
+                    setData: setJsonData,
+                    selected,
+                    key: 'history',
+                  })
+                }
+              />
+            )}
 
             {watchLater && (
               <TableAccordionItem

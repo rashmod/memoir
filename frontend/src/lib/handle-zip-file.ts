@@ -21,6 +21,7 @@ export default function handleZipFile(acceptedFiles: File[], setData: (data: upl
     const playlists = processPlaylist(result);
 
     setData({
+      key: 'basic',
       playlists,
       history: watchHistory!.data,
       subscriptions: subscriptions!.data,
