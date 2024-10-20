@@ -7,11 +7,11 @@ export default function getUniqueVideos(data: uploadedData) {
   const videos = new Map<string, { id: string }>();
 
   for (const video of history) {
-    videos.set(video.youtubeId, { id: video.youtubeId });
+    videos.set(video.videoId, { id: video.videoId });
   }
 
   for (const video of playlists) {
-    videos.set(video.id, { id: video.id });
+    videos.set(video.videoId, { id: video.videoId });
   }
 
   return Array.from(videos.values());

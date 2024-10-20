@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { BasicVideo, DetailedVideo, FinalVideo } from '@/types/table/video';
+import { BasicVideoNew, DetailedVideoNew, FinalVideo } from '@/types/table/video';
 
 async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/history');
@@ -9,15 +9,18 @@ async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   return response.data;
 }
 
-async function addFile(history: BasicVideo[]): Promise<{ message: string; data: DetailedVideo[] }> {
-  const response = await axios.post('http://localhost:3000/api/history/add-file', { history });
+async function uploadHistory(history: BasicVideoNew[]) {
+  const response = await axios.post('http://localhost:3000/api/history/upload-history', { history });
   console.log(response.data);
 
   return response.data;
 }
 
-async function uploadHistory(history: BasicVideo[]) {
-  const response = await axios.post('http://localhost:3000/api/history/upload-history', { history });
+async function addFile(upload: {
+  history: { videoId: string; watchedAt: string }[];
+  playlists: { videoId: string; addedAt: string }[][];
+}): Promise<{ message: string; data: { history: DetailedVideoNew[] } }> {
+  const response = await axios.post('http://localhost:3000/api/upload/add-file', { upload });
   console.log(response.data);
 
   return response.data;

@@ -7,8 +7,8 @@ export const playlistSchema = z.array(
       'Video ID': z.string().trim().length(11),
     })
     .transform((data) => ({
-      id: data['Video ID'],
-      createdAt: data['Playlist Video Creation Timestamp'],
+      videoId: data['Video ID'],
+      addedAt: data['Playlist Video Creation Timestamp'],
     }))
 );
 

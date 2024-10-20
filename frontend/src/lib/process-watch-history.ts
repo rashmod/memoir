@@ -1,7 +1,7 @@
 import { WatchHistory } from '@/types/uploads/watch-history';
-import { BasicVideo } from '@/types/table/video';
+import { BasicVideoNew } from '@/types/table/video';
 
-export default function processWatchHistory(data: WatchHistory): BasicVideo[] {
+export default function processWatchHistory(data: WatchHistory): BasicVideoNew[] {
   return data
     .filter(hasNoDetails)
     .filter((item) => 'titleUrl' in item)
@@ -12,10 +12,10 @@ export default function processWatchHistory(data: WatchHistory): BasicVideo[] {
       const channelUrl = subtitles ? subtitles[0]!.url : undefined;
       const title = item.title.replace('Watched ', '');
       const url = item.titleUrl;
-      const [, youtubeId] = url.split('=');
+      const [, videoId] = url.split('=');
       const time = item.time;
 
-      return { title, channelName, channelUrl, url, time, youtubeId: youtubeId! };
+      return { title, channelName, channelUrl, url, watchedAt: time, videoId: videoId! };
     });
 }
 

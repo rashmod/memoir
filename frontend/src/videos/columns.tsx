@@ -8,15 +8,15 @@ import LazyImage from '@/components/custom/lazy-image';
 
 import formatDuration from '@/lib/format-duration';
 import formatDate from '@/lib/format-date';
-
-import { FinalVideo, HistoryVideo, BasicVideo, DetailedVideo } from '@/types/table/video';
-import { BasicPlaylist } from '@/types/table/playlist';
 import { cn } from '@/lib/utils';
 
-const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideo>();
-const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideo>();
+import { FinalVideo, HistoryVideo, BasicVideoNew, DetailedVideoNew } from '@/types/table/video';
+import { Subscription } from '@/types/uploads/subscription';
 
-const basicPlaylistColumnHelper = createColumnHelper<BasicPlaylist['videos'][number]>();
+const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideoNew>();
+const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideoNew>();
+
+const subscriptionColumnHelper = createColumnHelper<Subscription>();
 
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
 const videoTableColumnHelper = createColumnHelper<HistoryVideo>();
@@ -141,7 +141,7 @@ export const basicWatchHistoryColumns = [
     header: 'Duration',
     cell: () => <Skeleton className="h-4 w-20" />,
   }),
-  basicWatchHistoryColumnHelper.accessor('time', {
+  basicWatchHistoryColumnHelper.accessor('watchedAt', {
     header: 'Watched on',
     cell: ({ cell }) => {
       // TODO show relative time??
@@ -174,7 +174,7 @@ export const basicWatchHistoryColumns = [
       </NewTabLink>
     ),
   }),
-] as ColumnDef<BasicVideo>[];
+] as ColumnDef<BasicVideoNew>[];
 
 export const detailedWatchHistoryColumns = [
   detailedWatchHistoryColumnHelper.display({
@@ -216,7 +216,7 @@ export const detailedWatchHistoryColumns = [
     header: 'Duration',
     cell: ({ cell }) => formatDuration(cell.getValue()),
   }),
-  detailedWatchHistoryColumnHelper.accessor('time', {
+  detailedWatchHistoryColumnHelper.accessor('watchedAt', {
     header: 'Watched on',
     cell: ({ cell }) => {
       // TODO show relative time??
@@ -246,54 +246,7 @@ export const detailedWatchHistoryColumns = [
     accessorKey: 'tags',
     header: 'Tags',
   },
-] as ColumnDef<DetailedVideo>[];
-
-export const basicPlaylistColumns = [
-  basicPlaylistColumnHelper.display({
-    id: 'select',
-    header: () => <Checkbox disabled aria-label="Select all" />,
-    cell: () => <Checkbox disabled aria-label="Select row" />,
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'index',
-    cell: ({ cell }) => cell.row.index + 1,
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'Thumbnail',
-    cell: () => <Skeleton className="aspect-video h-20" />,
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'Title',
-    cell: () => <Skeleton className="h-4 w-32" />,
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'Duration',
-    cell: () => <Skeleton className="h-4 w-20" />,
-  }),
-  basicPlaylistColumnHelper.accessor('createdAt', {
-    header: 'Added on',
-    cell: ({ cell }) => {
-      // TODO show relative time??
-      const value = cell.getValue();
-      const { date, time } = formatDate(value);
-
-      return (
-        <div className="min-w-20">
-          <div>{date}</div>
-          <div className="text-muted-foreground">{time}</div>
-        </div>
-      );
-    },
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'Channel Name',
-    cell: () => <Skeleton className="h-4 w-32" />,
-  }),
-  basicPlaylistColumnHelper.display({
-    header: 'Channel Avatar',
-    cell: () => <Skeleton className="aspect-square h-16 rounded-full" />,
-  }),
-] as ColumnDef<BasicPlaylist['videos'][number]>[];
+] as ColumnDef<DetailedVideoNew>[];
 
 export const displayTableColumns = [
   // displayTableColumnHelper.display({

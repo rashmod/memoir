@@ -1,7 +1,7 @@
 import { Playlist, PlaylistCatalog, playlistCatalogSchema, playlistSchema } from '@/types/uploads/playlist';
 import { Subscription, subscriptionSchema } from '@/types/uploads/subscription';
 import { watchHistorySchema } from '@/types/uploads/watch-history';
-import { BasicVideo } from '@/types/table/video';
+import { BasicVideoNew } from '@/types/table/video';
 import JSZip from 'jszip';
 import processJsonFile from './process-json-file';
 import processCsvFile from './process-csv-file';
@@ -10,7 +10,7 @@ import { z } from 'zod';
 export default async function processFile(
   zipEntry: JSZip.JSZipObject
 ): Promise<
-  | ProcessedFile<BasicVideo[], 'history'>
+  | ProcessedFile<BasicVideoNew[], 'history'>
   | ProcessedFile<Playlist | PlaylistCatalog, 'playlists'>
   | ProcessedFile<Subscription, 'subscriptions'>
   | undefined

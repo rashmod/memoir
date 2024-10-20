@@ -1,16 +1,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
-import { RowSelectionState } from '@tanstack/react-table';
 import { useMemo, useState } from 'react';
 
 import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
-import {
-  basicPlaylistColumns,
-  basicWatchHistoryColumns,
-  detailedWatchHistoryColumns,
-  uniqueVideoColumn,
-} from '@/videos/columns';
+
+import { basicWatchHistoryColumns, detailedWatchHistoryColumns, uniqueVideoColumn } from '@/videos/columns';
+import { basicPlaylistColumns } from '@/columns/playlist';
 
 import { Button } from '@/components/ui/button';
 import { Accordion } from '@/components/ui/accordion';
@@ -18,7 +14,7 @@ import FileUploader from '@/components/custom/file-uploader';
 import TableAccordionItem from '@/components/custom/table-accordion-item';
 
 import { BasicPlaylist } from '@/types/table/playlist';
-import { BasicVideo, DetailedVideo } from '@/types/table/video';
+import { BasicVideoNew, DetailedVideoNew } from '@/types/table/video';
 import { BasicSubscription } from '@/types/table/subscription';
 
 import getUniqueVideos from '@/lib/get-unique-videos';
@@ -53,7 +49,7 @@ function Page() {
 
   const addMutation = useMutation({
     mutationFn: videosApi.addFile,
-    onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data, key: 'detailed' })),
+    onSuccess: (data) => setJsonData((prev) => ({ ...prev, history: data.data.history, key: 'detailed' })),
   });
 
   const uploadMutation = useMutation({
@@ -70,6 +66,10 @@ function Page() {
   const uniqueVideos = useMemo(() => getUniqueVideos(jsonData), [jsonData]);
 
   // TODO deleting in unique videos and playlist takes too long
+  // TODO show new videos added to a playlist
+  // TODO show videos removed from a playlist
+  // TODO show new playlist
+  // TODO show removed playlist
 
   console.log(jsonData);
 
@@ -80,7 +80,10 @@ function Page() {
           onUpload={(files) => {
             handleZipFile(files, (data) => {
               setJsonData(data);
-              addMutation.mutate(data.history);
+              addMutation.mutate({
+                history: data.history.map((item) => ({ videoId: item.videoId, watchedAt: item.watchedAt })),
+                playlists: data.playlists.map((playlist) => playlist.videos),
+              });
             });
           }}
         />

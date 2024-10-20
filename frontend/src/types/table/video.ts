@@ -17,7 +17,24 @@ export type DetailedVideo = BasicVideo & {
   channelAvatarUrl: string;
 };
 
-export type MergedVideo = BasicVideo | DetailedVideo;
+export type BasicVideoNew = {
+  videoId: string;
+  title: string;
+  url: string;
+  watchedAt: string;
+  channelName: string | undefined;
+  channelUrl: string | undefined;
+};
+
+export type DetailedVideoNew = BasicVideoNew & {
+  thumbnailUrl: string;
+  duration: number;
+  youtubeCreatedAt: string;
+  channelId: string;
+  channelName: string;
+  channelUrl: string;
+  channelAvatarUrl: string;
+};
 
 export type FinalVideo = Omit<DetailedVideo, 'time'> & {
   lastWatchedAt: string;
