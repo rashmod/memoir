@@ -4,21 +4,21 @@ import { useMemo, useState } from 'react';
 
 import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
+import getUniqueVideos, { DetailedUniqueVideo } from '@/lib/get-unique-videos';
+import { deleteSelectedRows } from '@/lib/delete-selected-rows';
 
-import { basicWatchHistoryColumns, detailedWatchHistoryColumns, uniqueVideoColumn } from '@/videos/columns';
+import { basicUniqueVideoColumns, detailedUniqueVideoColumns } from '@/columns/unique-videos';
 import { basicPlaylistColumns, detailedPlaylistColumns } from '@/columns/playlist';
+import { basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/columns/watch-history';
 
 import { Button } from '@/components/ui/button';
 import { Accordion } from '@/components/ui/accordion';
 import FileUploader from '@/components/custom/file-uploader';
 import TableAccordionItem from '@/components/custom/table-accordion-item';
 
-import { BasicPlaylist, DetailedPlaylist } from '@/types/table/playlist';
+import { BasicPlaylist, DetailedPlaylist, DetailedPlaylistVideo } from '@/types/table/playlist';
 import { BasicVideoNew, DetailedVideoNew } from '@/types/table/video';
 import { BasicSubscription } from '@/types/table/subscription';
-
-import getUniqueVideos from '@/lib/get-unique-videos';
-import { deleteSelectedRows } from '@/lib/delete-selected-rows';
 
 export type uploadedData =
   | {
@@ -59,6 +59,7 @@ function Page() {
   });
 
   const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
+  const watchLater = watchLaterIndex > -1 && jsonData.playlists[watchLaterIndex]!;
 
   const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
 
@@ -99,23 +100,22 @@ function Page() {
           </Button>
 
           <Accordion className="grid w-full gap-4" type="multiple" defaultValue={['watch-history']}>
-            <TableAccordionItem
-              id="unique-videos"
-              data={uniqueVideos}
-              title="Unique Videos"
-              columns={uniqueVideoColumn}
-              getRowId={(row) => row.id}
-              onDeleteSelectedRows={(selected) =>
-                deleteSelectedRows({
-                  setData: setJsonData,
-                  selected,
-                  key: 'unique',
-                })
-              }
-            />
-
             {isDetailedData ? (
               <>
+                <TableAccordionItem
+                  id="unique-videos"
+                  data={uniqueVideos as DetailedUniqueVideo[]}
+                  title="Unique Videos"
+                  columns={detailedUniqueVideoColumns}
+                  getRowId={(row) => row.videoId}
+                  onDeleteSelectedRows={(selected) =>
+                    deleteSelectedRows({
+                      setData: setJsonData,
+                      selected,
+                      key: 'unique',
+                    })
+                  }
+                />
                 <TableAccordionItem
                   id="watch-history"
                   data={jsonData.history}
@@ -130,12 +130,12 @@ function Page() {
                   }
                 />
 
-                {watchLaterIndex !== -1 && jsonData.playlists[watchLaterIndex] && (
+                {watchLater && (
                   <TableAccordionItem
-                    id={`playlist-${jsonData.playlists[watchLaterIndex].id}`}
-                    title={jsonData.playlists[watchLaterIndex].title}
+                    id={`playlist-${watchLater.id}`}
+                    title={watchLater.title}
                     columns={detailedPlaylistColumns}
-                    data={jsonData.playlists[watchLaterIndex].videos}
+                    data={watchLater.videos as DetailedPlaylistVideo[]}
                     onDeleteSelectedRows={(selected) =>
                       deleteSelectedRows({
                         setData: setJsonData,
@@ -171,6 +171,20 @@ function Page() {
             ) : (
               <>
                 <TableAccordionItem
+                  id="unique-videos"
+                  data={uniqueVideos}
+                  title="Unique Videos"
+                  columns={basicUniqueVideoColumns}
+                  getRowId={(row) => row.videoId}
+                  onDeleteSelectedRows={(selected) =>
+                    deleteSelectedRows({
+                      setData: setJsonData,
+                      selected,
+                      key: 'unique',
+                    })
+                  }
+                />
+                <TableAccordionItem
                   id="watch-history"
                   data={jsonData.history}
                   title="Watch History"
@@ -184,12 +198,12 @@ function Page() {
                   }
                 />
 
-                {watchLaterIndex !== -1 && jsonData.playlists[watchLaterIndex] && (
+                {watchLater && (
                   <TableAccordionItem
-                    id={`playlist-${jsonData.playlists[watchLaterIndex].id}`}
-                    title={jsonData.playlists[watchLaterIndex].title}
+                    id={`playlist-${watchLater.id}`}
+                    title={watchLater.title}
                     columns={basicPlaylistColumns}
-                    data={jsonData.playlists[watchLaterIndex].videos}
+                    data={watchLater.videos}
                     onDeleteSelectedRows={(selected) =>
                       deleteSelectedRows({
                         setData: setJsonData,

@@ -13,7 +13,7 @@ export type DetailedPlaylistVideo = Playlist[number] & {
   channelAvatarUrl: string;
   thumbnailUrl: string;
   duration: number;
-  youtubeCreatedAt: Date;
+  youtubeCreatedAt: string;
 };
 
 export type DetailedPlaylist = PlaylistCatalog[number] & {
