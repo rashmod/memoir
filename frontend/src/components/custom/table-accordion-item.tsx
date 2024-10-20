@@ -7,20 +7,20 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/
 import { DataTable } from '@/components/custom/data-table';
 import SelectionActionBar from '@/components/custom/selection-action-bar';
 
-export default function TableAccordionItem<TData, TValue, TKey>({
+export default function TableAccordionItem<TData, TValue>({
   id,
-  collection,
   title,
   columns,
   data,
   onDeleteSelectedRows,
+  getRowId,
 }: {
   id: string;
-  collection: TKey;
   title: string;
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
-  onDeleteSelectedRows: (selected: RowSelectionState, collection: TKey) => void;
+  onDeleteSelectedRows: (selected: RowSelectionState) => void;
+  getRowId?: (row: TData) => string;
 }) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -28,7 +28,7 @@ export default function TableAccordionItem<TData, TValue, TKey>({
   const selectedCount = useMemo(() => Object.keys(rowSelection).length, [rowSelection]);
 
   function onDeleteSelected() {
-    onDeleteSelectedRows(rowSelection, collection);
+    onDeleteSelectedRows(rowSelection);
     setRowSelection({});
   }
 
@@ -46,6 +46,7 @@ export default function TableAccordionItem<TData, TValue, TKey>({
           setRowSelection={setRowSelection}
           pagination={pagination}
           setPagination={setPagination}
+          getRowId={getRowId}
         />
         <SelectionActionBar className="mb-4" selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
       </AccordionContent>

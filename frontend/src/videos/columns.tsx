@@ -11,6 +11,7 @@ import formatDate from '@/lib/format-date';
 
 import { FinalVideo, HistoryVideo, BasicVideo, DetailedVideo } from '@/types/table/video';
 import { BasicPlaylist } from '@/types/table/playlist';
+import { cn } from '@/lib/utils';
 
 const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideo>();
 const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideo>();
@@ -19,6 +20,96 @@ const basicPlaylistColumnHelper = createColumnHelper<BasicPlaylist['videos'][num
 
 const displayTableColumnHelper = createColumnHelper<FinalVideo>();
 const videoTableColumnHelper = createColumnHelper<HistoryVideo>();
+
+const uniqueVideoColumnHelper = createColumnHelper<{ id: string }>();
+
+export const uniqueVideoColumn = [
+  uniqueVideoColumnHelper.display({
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  }),
+  // uniqueVideoColumnHelper.display({
+  //   id: 'select',
+  //   header: () => <Checkbox disabled aria-label="Select all" />,
+  //   cell: () => <Checkbox disabled aria-label="Select row" />,
+  // }),
+  uniqueVideoColumnHelper.display({
+    header: 'index',
+    cell: ({ cell }) => cell.row.index + 1,
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Thumbnail',
+    cell: () => <Skeleton className="aspect-video h-20" />,
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Title',
+    cell: () => <Skeleton className="h-4 w-32" />,
+  }),
+  uniqueVideoColumnHelper.accessor('id', {
+    header: 'ID',
+    cell: ({ cell }) => <NewTabLink link={cell.getValue()}>{cell.getValue()}</NewTabLink>,
+  }),
+
+  uniqueVideoColumnHelper.display({
+    header: 'Duration',
+    cell: () => <Skeleton className="h-4 w-20" />,
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Uploaded on',
+    cell: () => (
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-4 w-10" />
+      </div>
+    ),
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Channel Name',
+    cell: () => <Skeleton className="h-4 w-32" />,
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Channel Avatar',
+    cell: () => <Skeleton className="aspect-square h-16 rounded-full" />,
+  }),
+  uniqueVideoColumnHelper.display({
+    header: 'Tags',
+    cell: () => (
+      <div className="flex min-w-32 flex-wrap gap-2">
+        {Array(5)
+          .fill(0)
+          .map((_, i) => {
+            const rand = Math.floor(Math.random() * 10);
+
+            return (
+              <Skeleton
+                key={i}
+                className={cn('h-4 rounded-full', {
+                  'w-10': rand % 3 === 0,
+                  'w-14': rand % 3 === 1,
+                  'w-16': rand % 3 === 2,
+                })}
+              />
+            );
+          })}
+      </div>
+    ),
+  }),
+] as ColumnDef<{ id: string }>[];
 
 export const basicWatchHistoryColumns = [
   basicWatchHistoryColumnHelper.display({

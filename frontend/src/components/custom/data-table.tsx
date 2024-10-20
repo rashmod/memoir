@@ -20,6 +20,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: PaginationState;
   setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
   onRowClick?: (row: TData) => void;
+  getRowId?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -30,6 +31,7 @@ export function DataTable<TData, TValue>({
   pagination,
   setPagination,
   onRowClick,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const tableConfig: TableOptions<TData> = {
     data,
@@ -37,6 +39,10 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     state: {},
   };
+
+  if (getRowId) {
+    tableConfig.getRowId = getRowId;
+  }
 
   if (rowSelection) {
     tableConfig.onRowSelectionChange = setRowSelection;

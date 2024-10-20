@@ -1,11 +1,16 @@
 import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { RowSelectionState } from '@tanstack/react-table';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import videosApi from '@/api/videos';
 import handleZipFile from '@/lib/handle-zip-file';
-import { basicPlaylistColumns, basicWatchHistoryColumns, detailedWatchHistoryColumns } from '@/videos/columns';
+import {
+  basicPlaylistColumns,
+  basicWatchHistoryColumns,
+  detailedWatchHistoryColumns,
+  uniqueVideoColumn,
+} from '@/videos/columns';
 
 import { Button } from '@/components/ui/button';
 import { Accordion } from '@/components/ui/accordion';
@@ -15,6 +20,9 @@ import TableAccordionItem from '@/components/custom/table-accordion-item';
 import { BasicPlaylist } from '@/types/table/playlist';
 import { BasicVideo, DetailedVideo } from '@/types/table/video';
 import { BasicSubscription } from '@/types/table/subscription';
+
+import getUniqueVideos from '@/lib/get-unique-videos';
+import { deleteSelectedRows } from '@/lib/delete-selected-rows';
 
 export type uploadedData = {
   history: BasicVideo[] | DetailedVideo[];
@@ -39,14 +47,14 @@ function Page() {
     mutationFn: videosApi.uploadHistory,
   });
 
-  function onDeleteSelected() {
-    setJsonData((prev) => ({ ...prev, history: prev.history.filter((_, index) => !rowSelection[index]) }));
-  }
-
   const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
   const watchLater = watchLaterIndex > -1 ? jsonData.playlists[watchLaterIndex] : undefined;
 
   const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
+
+  const uniqueVideos = useMemo(() => getUniqueVideos(jsonData), [jsonData]);
+
+  // TODO deleting in unique videos and playlist takes too long
 
   console.log(jsonData);
 
@@ -73,22 +81,48 @@ function Page() {
 
           <Accordion className="grid w-full gap-4" type="multiple" defaultValue={['watch-history']}>
             <TableAccordionItem
+              id="unique-videos"
+              data={uniqueVideos}
+              title="Unique Videos"
+              columns={uniqueVideoColumn}
+              getRowId={(row) => row.id}
+              onDeleteSelectedRows={(selected) =>
+                deleteSelectedRows({
+                  setData: setJsonData,
+                  selected,
+                  key: 'unique',
+                })
+              }
+            />
+
+            <TableAccordionItem
               id="watch-history"
-              collection="history"
               data={jsonData.history}
               title="Watch History"
               columns={addMutation.isSuccess ? detailedWatchHistoryColumns : basicWatchHistoryColumns}
-              onDeleteSelectedRows={onDeleteSelectedRows}
+              onDeleteSelectedRows={(selected) =>
+                deleteSelectedRows({
+                  setData: setJsonData,
+                  selected,
+                  key: 'history',
+                })
+              }
             />
 
             {watchLater && (
               <TableAccordionItem
                 id={`playlist-${watchLater.id}`}
-                collection="playlists"
                 title={watchLater.title}
                 columns={basicPlaylistColumns}
                 data={watchLater.videos}
-                onDeleteSelectedRows={onDeleteSelectedRows}
+                onDeleteSelectedRows={(selected) =>
+                  deleteSelectedRows({
+                    setData: setJsonData,
+                    selected,
+                    key: 'playlists',
+                    index: watchLaterIndex,
+                  })
+                }
               />
             )}
 
@@ -97,12 +131,18 @@ function Page() {
                 i !== watchLaterIndex && (
                   <TableAccordionItem
                     key={playlist.id}
-                    collection="playlists"
                     id={`playlist-${playlist.id}`}
                     title={playlist.title}
                     columns={basicPlaylistColumns}
                     data={playlist.videos}
-                    onDeleteSelectedRows={onDeleteSelectedRows}
+                    onDeleteSelectedRows={(selected) =>
+                      deleteSelectedRows({
+                        setData: setJsonData,
+                        selected,
+                        key: 'playlists',
+                        index: i,
+                      })
+                    }
                   />
                 )
             )}
