@@ -2,16 +2,17 @@ import { eq, inArray, sql } from "drizzle-orm";
 
 import db from "@/db";
 import { channel, video } from "@/db/schema";
+import { insertVideo } from "@/types";
 
 import formatExcludedColumns from "@/lib/format-excluded-columns";
 import formatTableColumnName from "@/lib/format-table-column-name";
 
 export default class VideoRepository {
-  async create(videos: (typeof video.$inferInsert)[]) {
+  async create(videos: insertVideo[]) {
     return await db.insert(video).values(videos).returning();
   }
 
-  async createOrUpdate(videos: Array<typeof video.$inferInsert>) {
+  async createOrUpdate(videos: insertVideo[]) {
     await db
       .insert(video)
       .values(videos)

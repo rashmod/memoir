@@ -10,6 +10,7 @@ import { HistoryVideo } from "@/controllers/history";
 import parseISODuration from "@/lib/parse-iso-duration";
 import mergeItems from "@/lib/mergeItems";
 
+import { insertChannel, insertVideo, insertWatchedVideo } from "@/types";
 import size from "@/constants/size";
 
 const { DB_CHUNK_SIZE } = size;
@@ -26,8 +27,8 @@ export default class HistoryService {
     const videoSet = new Set<string>(history.map((item) => item.youtubeId));
     const channelSet = new Set<string>();
 
-    const videosToInsert: (typeof video.$inferInsert)[][] = [];
-    const channelsToInsert: (typeof channel.$inferInsert)[][] = [];
+    const videosToInsert: insertVideo[][] = [];
+    const channelsToInsert: insertChannel[][] = [];
 
     const [missingVideoIds, existingVideos] =
       await this.videoService.getMissingVideoIds(videoSet, DB_CHUNK_SIZE);
@@ -142,7 +143,7 @@ export default class HistoryService {
   }
 
   async uploadHistory(history: HistoryVideo[], userId: string) {
-    const watchedVideos: (typeof watchedVideo.$inferInsert)[][] = [[]];
+    const watchedVideos: insertWatchedVideo[][] = [[]];
 
     for (const video of history) {
       if (watchedVideos[watchedVideos.length - 1]?.length! >= DB_CHUNK_SIZE)

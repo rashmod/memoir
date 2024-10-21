@@ -1,15 +1,15 @@
-import { video } from "@/db/schema";
 import chunkArray from "@/lib/chunk-array";
 import VideoRepository from "@/repositories/video";
+import { insertVideo } from "@/types";
 
 export default class VideoService {
   constructor(private readonly videoRepository: VideoRepository) {}
 
-  async bulkCreate(videos: (typeof video.$inferInsert)[][]) {
+  async bulkCreate(videos: insertVideo[][]) {
     return await Promise.all(videos.map((chunk) => this.create(chunk)));
   }
 
-  async create(videos: (typeof video.$inferInsert)[]) {
+  async create(videos: insertVideo[]) {
     return await this.videoRepository.create(videos);
   }
 

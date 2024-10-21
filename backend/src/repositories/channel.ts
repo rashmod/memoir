@@ -5,13 +5,14 @@ import { channel } from "@/db/schema";
 
 import formatExcludedColumns from "@/lib/format-excluded-columns";
 import formatTableColumnName from "@/lib/format-table-column-name";
+import { insertChannel } from "@/types";
 
 export default class ChannelRepository {
-  async create(channels: (typeof channel.$inferInsert)[]) {
+  async create(channels: insertChannel[]) {
     return await db.insert(channel).values(channels).returning();
   }
 
-  async createOrUpdate(channels: (typeof channel.$inferInsert)[]) {
+  async createOrUpdate(channels: insertChannel[]) {
     return await db
       .insert(channel)
       .values(channels)

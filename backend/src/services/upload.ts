@@ -1,12 +1,26 @@
 import { channel, video } from "@/db/schema";
 
-import { VideoService, ChannelService, YoutubeService } from "@/services";
+import {
+  VideoService,
+  ChannelService,
+  YoutubeService,
+  WatchedVideoService,
+  PlaylistService,
+  PlaylistVideoService,
+} from "@/services";
 
 import { Upload } from "@/controllers/upload";
 
 import parseISODuration from "@/lib/parse-iso-duration";
 import mergeItems from "@/lib/mergeItems";
+import chunkArray from "@/lib/chunk-array";
 
+import {
+  insertChannel,
+  insertPlaylistVideo,
+  insertVideo,
+  insertWatchedVideo,
+} from "@/types";
 import size from "@/constants/size";
 
 const { DB_CHUNK_SIZE } = size;
@@ -16,21 +30,24 @@ export default class UploadService {
     private readonly videoService: VideoService,
     private readonly channelService: ChannelService,
     private readonly youtubeService: YoutubeService,
+    private readonly watchedVideoService: WatchedVideoService,
+    private readonly playlistService: PlaylistService,
+    private readonly playlistVideoService: PlaylistVideoService,
   ) {}
 
   async processUpload(upload: Upload) {
     const uniqueVideoIds = new Set<string>();
     const uniqueChannelIds = new Set<string>();
 
-    const videosToInsert: (typeof video.$inferInsert)[][] = [];
-    const channelsToInsert: (typeof channel.$inferInsert)[][] = [];
+    const videosToInsert: insertVideo[][] = [];
+    const channelsToInsert: insertChannel[][] = [];
 
     for (const video of upload.history) {
       uniqueVideoIds.add(video.videoId);
     }
 
     for (const playlist of upload.playlists) {
-      for (const video of playlist) {
+      for (const video of playlist.videos) {
         uniqueVideoIds.add(video.videoId);
       }
     }
@@ -114,8 +131,15 @@ export default class UploadService {
 
     const response: {
       history: (Video & { watchedAt: string })[];
-      playlist: (Video & { addedAt: string })[][];
-    } = { history: [], playlist: [] };
+      playlists: {
+        id: string;
+        title: string;
+        createdAt: string;
+        updatedAt: string;
+        visibility: string;
+        videos: (Video & { addedAt: string })[];
+      }[];
+    } = { history: [], playlists: [] };
 
     for (const item of upload.history) {
       const video = allVideos.get(item.videoId);
@@ -127,7 +151,7 @@ export default class UploadService {
       response.history.push({
         title: video.title,
         url: video.url,
-        youtubeId: video.youtubeId,
+        videoId: video.youtubeId,
         channelId: video.channelId,
         duration: video.duration,
         thumbnailUrl: video.thumbnailUrl,
@@ -139,20 +163,20 @@ export default class UploadService {
       });
     }
 
-    for (const playlist of upload.playlists) {
-      response.playlist.push([]);
+    for (const { videos, ...rest } of upload.playlists) {
+      response.playlists.push({ ...rest, videos: [] });
 
-      for (const item of playlist) {
+      for (const item of videos) {
         const video = allVideos.get(item.videoId);
         if (!video) continue;
 
         const channel = allChannels.get(video.channelId);
         if (!channel) continue;
 
-        response.playlist[response.playlist.length - 1]!.push({
+        response.playlists[response.playlists.length - 1]!.videos.push({
           title: video.title,
           url: video.url,
-          youtubeId: video.youtubeId,
+          videoId: video.youtubeId,
           channelId: video.channelId,
           duration: video.duration,
           thumbnailUrl: video.thumbnailUrl,
@@ -167,12 +191,50 @@ export default class UploadService {
 
     return response;
   }
+
+  async uploadData(upload: Upload, userId: string) {
+    const { history, playlists } = upload;
+
+    const historyChunks: insertWatchedVideo[][] = chunkArray(
+      history.map((video) => ({
+        userId,
+        youtubeVideoId: video.videoId,
+        youtubeCreatedAt: new Date(video.watchedAt),
+      })),
+      DB_CHUNK_SIZE,
+    );
+
+    await this.watchedVideoService.bulkCreate(historyChunks);
+
+    for (const playlist of playlists) {
+      const playlistData = await this.playlistService.create({
+        youtubeId: playlist.id,
+        name: playlist.title,
+        youtubeCreatedAt: new Date(playlist.createdAt),
+        youtubeUpdatedAt: new Date(playlist.updatedAt),
+        userId,
+      });
+
+      const videoChunks: insertPlaylistVideo[][] = chunkArray(
+        playlist.videos.map((item) => ({
+          youtubeVideoId: item.videoId,
+          youtubeCreatedAt: new Date(item.addedAt),
+          youtubePlaylistId: playlistData.youtubeId,
+        })),
+        DB_CHUNK_SIZE,
+      );
+
+      await this.playlistVideoService.bulkCreate(videoChunks);
+    }
+
+    return "ok";
+  }
 }
 
 type Video = {
   title: string;
   url: string;
-  youtubeId: string;
+  videoId: string;
   channelId: string;
   channelName: string;
   channelUrl: string;

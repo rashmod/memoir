@@ -1,17 +1,17 @@
-import { channel } from "@/db/schema";
 import chunkArray from "@/lib/chunk-array";
 import ChannelRepository from "@/repositories/channel";
+import { insertChannel } from "@/types";
 
 export default class ChannelService {
   constructor(private readonly channelRepository: ChannelRepository) {
     this.channelRepository = channelRepository;
   }
 
-  async bulkCreate(channels: (typeof channel.$inferInsert)[][]) {
+  async bulkCreate(channels: insertChannel[][]) {
     return await Promise.all(channels.map((chunk) => this.create(chunk)));
   }
 
-  async create(channels: (typeof channel.$inferInsert)[]) {
+  async create(channels: insertChannel[]) {
     return await this.channelRepository.create(channels);
   }
 

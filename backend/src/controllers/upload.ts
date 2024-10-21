@@ -12,9 +12,26 @@ export default class UploadController {
 
     res.status(200).json({ message: "ok", data: response });
   };
+
+  uploadData = async (req: express.Request, res: express.Response) => {
+    const { upload }: { upload: Upload } = req.body;
+
+    const userId = "0e4fce12-3606-4a66-b545-17b219682451";
+
+    const response = await this.uploadService.uploadData(upload, userId);
+
+    res.status(200).json({ message: "ok", response });
+  };
 }
 
 export type Upload = {
   history: { videoId: string; watchedAt: string }[];
-  playlists: { videoId: string; addedAt: string }[][];
+  playlists: {
+    id: string;
+    title: string;
+    createdAt: string;
+    updatedAt: string;
+    visibility: string;
+    videos: { videoId: string; addedAt: string }[];
+  }[];
 };
