@@ -55,7 +55,7 @@ function Page() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: videosApi.uploadHistory,
+    mutationFn: videosApi.uploadData,
   });
 
   const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
@@ -72,8 +72,6 @@ function Page() {
   // TODO show videos removed from a playlist
   // TODO show new playlist
   // TODO show removed playlist
-
-  console.log(jsonData);
 
   return (
     <section className="grid place-items-center gap-8">
@@ -93,7 +91,7 @@ function Page() {
       {hasData && (
         <div className="w-full space-y-4">
           <Button
-            onClick={() => uploadMutation.mutate(jsonData.history)}
+            onClick={() => uploadMutation.mutate(jsonData)}
             disabled={!isDetailedData || uploadMutation.isPending}
           >
             {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
