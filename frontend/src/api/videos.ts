@@ -1,10 +1,18 @@
 import axios from 'axios';
 
-import { DetailedVideoNew, FinalVideo } from '@/types/table/video';
+import { DetailedVideoNew, FinalVideo, UserVideo } from '@/types/table/video';
 import { DetailedPlaylist } from '@/types/table/playlist';
 
 async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/history');
+  // console.log(response.data);
+
+  return response.data;
+}
+
+async function getUserVideos(): Promise<{ message: string; data: UserVideo[] }> {
+  const response = await axios.get('http://localhost:3000/api/videos');
+  console.log('user videos');
   console.log(response.data);
 
   return response.data;
@@ -59,7 +67,7 @@ async function getVideoHistory(videoId: string): Promise<{
   return response.data;
 }
 
-export default { uploadData, addFile, getHistory, getVideoHistory };
+export default { uploadData, addFile, getHistory, getUserVideos, getVideoHistory };
 
 type Upload = {
   history: { videoId: string; watchedAt: string }[];

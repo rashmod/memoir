@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import videosApi from '@/api/videos';
 import { DataTable } from '@/components/custom/data-table';
-import { displayTableColumns } from '@/videos/columns';
+import { userVideoTableColumns } from '@/columns/user-videos';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -13,8 +13,8 @@ export const Route = createFileRoute('/')({
 
 function Page() {
   const { data, isLoading } = useQuery({
-    queryKey: ['history'],
-    queryFn: videosApi.getHistory,
+    queryKey: ['user-videos'],
+    queryFn: videosApi.getUserVideos,
   });
 
   const navigate = useNavigate();
@@ -35,14 +35,15 @@ function Page() {
       {data && (
         <DataTable
           data={data.data}
-          columns={displayTableColumns}
+          columns={userVideoTableColumns}
           rowSelection={rowSelection}
           setRowSelection={setRowSelection}
           pagination={pagination}
           setPagination={setPagination}
-          onRowClick={(row) => navigate({ to: `/video/${row.youtubeId}` })}
+          onRowClick={(row) => navigate({ to: `/video/${row.videoId}` })}
         />
       )}
+
       {/* <SelectionActionBar selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} /> */}
     </div>
   );

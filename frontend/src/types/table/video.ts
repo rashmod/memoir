@@ -17,6 +17,16 @@ export type DetailedVideo = BasicVideo & {
   channelAvatarUrl: string;
 };
 
+export type FinalVideo = Omit<DetailedVideo, 'time'> & {
+  lastWatchedAt: string;
+  watchCount?: number;
+};
+
+export type HistoryVideo = {
+  id: string;
+  youtubeCreatedAt: string;
+};
+
 export type BasicVideoNew = {
   videoId: string;
   title: string;
@@ -36,12 +46,18 @@ export type DetailedVideoNew = BasicVideoNew & {
   channelAvatarUrl: string;
 };
 
-export type FinalVideo = Omit<DetailedVideo, 'time'> & {
-  lastWatchedAt: string;
-  watchCount?: number;
-};
-
-export type HistoryVideo = {
-  id: string;
-  youtubeCreatedAt: string;
+export type UserVideo = {
+  videoId: string;
+  title: string;
+  url: string;
+  lastWatchedAt: string | null;
+  thumbnailUrl: string;
+  duration: number;
+  youtubeCreatedAt: Date;
+  channelId: string;
+  channelName: string;
+  channelUrl: string;
+  channelAvatarUrl: string;
+  watchCount: number;
+  playlists: string[];
 };
