@@ -1,15 +1,6 @@
-import {
-  integer,
-  pgTable,
-  primaryKey,
-  timestamp,
-  unique,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 
-import { user } from "@/db/schema";
-import { video } from "@/db/schema";
+import { user, video } from "@/db/schema";
 
 const watchedVideo = pgTable("watched_video", {
   id: uuid("id").primaryKey().defaultRandom(),
