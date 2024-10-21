@@ -6,3 +6,4 @@ export { default as WatchedVideoService } from "@/services/watched-videos";
 export { default as UploadService } from "@/services/upload";
 export { default as PlaylistService } from "@/services/playlist";
 export { default as PlaylistVideoService } from "@/services/playlist-video";
+export { default as UserVideoService } from "@/services/user-video";
