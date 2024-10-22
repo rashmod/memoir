@@ -37,7 +37,7 @@ export type UserVideoDetails = {
   video: {
     videoId: string;
     title: string;
-    description: string | null;
+    description: string;
     url: string;
     thumbnailUrl: string;
     duration: number;

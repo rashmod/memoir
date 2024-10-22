@@ -45,13 +45,13 @@ function Page() {
               <Badge variant="secondary" className="hover:bg-accent-foreground hover:text-accent">
                 Go to video <ExternalLink className="ml-1 size-4" />
               </Badge>
-            </NewTabLink>{' '}
+            </NewTabLink>
           </h1>
         </div>
 
         <div>
           <p className="text-lg font-semibold">Description</p>
-          <p>{video.description || 'No description provided'}</p>
+          <div className="whitespace-pre-line">{video.description || 'No description provided'}</div>
         </div>
 
         <div>
@@ -75,14 +75,14 @@ function Page() {
         <div className="flex items-center gap-2">
           <img src={video.channelAvatarUrl} className="aspect-square w-14 rounded-full object-cover" />
           <div>
-            <p className="text-xl font-semibold">
+            <div className="text-xl font-semibold">
               <span>{video.channelName}</span>
               <NewTabLink link={video.channelUrl} className="ml-2">
                 <Badge variant="secondary" className="hover:bg-accent-foreground hover:text-accent">
                   Go to channel <ExternalLink className="ml-1 size-4" />
                 </Badge>
               </NewTabLink>
-            </p>
+            </div>
             <p className="text-sm">since {formatDate(video.channelCreatedAt).date}</p>
           </div>
         </div>
