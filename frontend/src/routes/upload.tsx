@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 
-import videosApi from '@/api/videos';
+import { uploadData, addFile } from '@/api/upload';
 import handleZipFile from '@/lib/handle-zip-file';
 import getUniqueVideos, { DetailedUniqueVideo } from '@/lib/get-unique-videos';
 import { deleteSelectedRows } from '@/lib/delete-selected-rows';
@@ -49,13 +49,13 @@ function Page() {
   const [error, setError] = useState<string>();
 
   const addMutation = useMutation({
-    mutationFn: videosApi.addFile,
+    mutationFn: addFile,
     onSuccess: ({ data }) =>
       setJsonData((prev) => ({ ...prev, history: data.history, playlists: data.playlists, key: 'detailed' })),
   });
 
   const uploadMutation = useMutation({
-    mutationFn: videosApi.uploadData,
+    mutationFn: uploadData,
   });
 
   const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
@@ -66,12 +66,6 @@ function Page() {
   const uniqueVideos = useMemo(() => getUniqueVideos(jsonData), [jsonData]);
 
   const isDetailedData = jsonData.key === 'detailed';
-
-  // TODO deleting in unique videos and playlist takes too long
-  // TODO show new videos added to a playlist
-  // TODO show videos removed from a playlist
-  // TODO show new playlist
-  // TODO show removed playlist
 
   return (
     <section className="grid place-items-center gap-8">

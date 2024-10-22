@@ -10,6 +10,7 @@ import formatDuration from '@/lib/format-duration';
 import { Badge } from '@/components/ui/badge';
 import { userVideoHistoryColumns, userVideoPlaylistColumns } from '@/columns/user-video-details';
 import NewTabLink from '@/components/custom/new-tab-link';
+import LazyImage from '@/components/custom/lazy-image';
 
 export const Route = createFileRoute('/video/$id')({
   component: Page,
@@ -32,13 +33,13 @@ function Page() {
   const { video, history, playlists } = data.data;
 
   const youtubeCreatedAt = formatDate(video.youtubeCreatedAt);
-  const lastWatchedAt = formatDate(history[0]!.watchedAt);
+  const lastWatchedAt = history.length === 0 ? null : formatDate(history[0]!.watchedAt);
 
   return (
     <div className="grid grid-cols-5 gap-4">
       <div className="col-span-3 space-y-4 [&>*]:space-y-1">
         <div>
-          <img src={video.thumbnailUrl} className="aspect-video w-full bg-black object-contain" />
+          <LazyImage src={video.thumbnailUrl} className="aspect-video w-full bg-black object-contain" />
           <h1 className="text-2xl font-semibold">
             <span>{video.title}</span>
             <NewTabLink link={video.url} className="ml-2">
@@ -73,7 +74,7 @@ function Page() {
 
       <div className="col-span-2 space-y-8">
         <div className="flex items-center gap-2">
-          <img src={video.channelAvatarUrl} className="aspect-square w-14 rounded-full object-cover" />
+          <LazyImage src={video.channelAvatarUrl} className="aspect-square w-14 rounded-full object-cover" />
           <div>
             <div className="text-xl font-semibold">
               <span>{video.channelName}</span>
@@ -118,9 +119,7 @@ function Page() {
             <Clock className="size-6" />
             <div>
               <p className="font-medium">Last Watched</p>
-              <p>
-                {lastWatchedAt.date} at {lastWatchedAt.time}
-              </p>
+              <p>{lastWatchedAt ? `${lastWatchedAt.date} at ${lastWatchedAt.time}` : 'Never'}</p>
             </div>
           </div>
 
@@ -134,7 +133,7 @@ function Page() {
         </div>
 
         <div>
-          <p className="text-lg font-semibold mb-1">Watch History</p>
+          <p className="mb-1 text-lg font-semibold">Watch History</p>
           <DataTable data={history} columns={userVideoHistoryColumns} />
         </div>
       </div>
