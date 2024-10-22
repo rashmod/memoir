@@ -14,8 +14,10 @@ export type DetailedPlaylistVideo = Playlist[number] & {
   thumbnailUrl: string;
   duration: number;
   youtubeCreatedAt: string;
+  new: boolean;
 };
 
 export type DetailedPlaylist = PlaylistCatalog[number] & {
   videos: DetailedPlaylistVideo[];
+  new: boolean;
 };

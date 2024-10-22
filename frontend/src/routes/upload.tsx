@@ -19,6 +19,8 @@ import TableAccordionItem from '@/components/custom/table-accordion-item';
 import { BasicPlaylist, DetailedPlaylist, DetailedPlaylistVideo } from '@/types/table/playlist';
 import { BasicVideo, DetailedVideo } from '@/types/table/video';
 import { BasicSubscription } from '@/types/table/subscription';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export type uploadedData =
   | {
@@ -48,6 +50,8 @@ function Page() {
 
   const [error, setError] = useState<string>();
 
+  const [showExisting, setShowExisting] = useState(false);
+
   const addMutation = useMutation({
     mutationFn: addFile,
     onSuccess: ({ data }) =>
@@ -58,12 +62,23 @@ function Page() {
     mutationFn: uploadData,
   });
 
-  const watchLaterIndex = jsonData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
-  const watchLater = watchLaterIndex > -1 && jsonData.playlists[watchLaterIndex]!;
-
   const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
 
-  const uniqueVideos = useMemo(() => getUniqueVideos(jsonData), [jsonData]);
+  const filteredPlaylistData = useMemo(() => {
+    if (jsonData.key === 'basic' || showExisting) return jsonData.playlists;
+    return jsonData.playlists.map((playlist) => ({
+      ...playlist,
+      videos: playlist.videos.filter((video) => video.new),
+    }));
+  }, [showExisting, jsonData]);
+
+  const watchLaterIndex = filteredPlaylistData.findIndex((playlist) => playlist.title === 'Watch later');
+  const watchLater = watchLaterIndex > -1 && filteredPlaylistData[watchLaterIndex]!;
+
+  const uniqueVideos = useMemo(() => {
+    if (jsonData.key === 'basic') return getUniqueVideos(jsonData);
+    return getUniqueVideos({ ...jsonData, playlists: filteredPlaylistData as DetailedPlaylist[] });
+  }, [jsonData, filteredPlaylistData]);
 
   const isDetailedData = jsonData.key === 'detailed';
 
@@ -84,12 +99,18 @@ function Page() {
 
       {hasData && (
         <div className="mb-auto w-full space-y-4">
-          <Button
-            onClick={() => uploadMutation.mutate(jsonData)}
-            disabled={!isDetailedData || uploadMutation.isPending}
-          >
-            {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
-          </Button>
+          <div className="flex items-end justify-between">
+            <Button
+              onClick={() => uploadMutation.mutate(jsonData)}
+              disabled={!isDetailedData || uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
+            </Button>
+            <div className="flex items-center gap-2">
+              <Switch id="toggle-existing" checked={showExisting} onCheckedChange={setShowExisting} />
+              <Label htmlFor="toggle-existing">{showExisting ? 'Hide' : 'Show'} existing data</Label>
+            </div>
+          </div>
 
           <Accordion className="grid w-full gap-4" type="multiple" defaultValue={['watch-history']}>
             {isDetailedData ? (
@@ -139,12 +160,25 @@ function Page() {
                   />
                 )}
 
-                {jsonData.playlists.map(
+                {(filteredPlaylistData as DetailedPlaylist[]).map(
                   (playlist, i) =>
                     i !== watchLaterIndex && (
                       <TableAccordionItem
                         key={playlist.id}
                         id={`playlist-${playlist.id}`}
+                        getRowClassName={(row) => {
+                          const className: string[] = [];
+
+                          if (showExisting) {
+                            if (row.new) {
+                              className.push('bg-green-50');
+                            } else {
+                              className.push('opacity-40');
+                            }
+                          }
+
+                          return className.join(' ');
+                        }}
                         title={playlist.title}
                         columns={detailedPlaylistColumns}
                         data={playlist.videos}

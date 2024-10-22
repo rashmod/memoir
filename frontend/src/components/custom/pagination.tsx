@@ -7,9 +7,11 @@ export default function Pagination<TData>({ table }: { table: Table<TData> }) {
   const totalRows = table.getRowCount();
   const currentIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
-  const currentRows = Math.min((currentIndex + 1) * pageSize, totalRows);
-  const currentPage = currentIndex + 1;
   const totalPages = table.getPageCount();
+
+  const currentRows = Math.min((currentIndex + 1) * pageSize, totalRows);
+  const startRow = Math.min(currentIndex * pageSize + 1, totalRows);
+  const currentPage = Math.min(currentIndex + 1, totalPages);
 
   return (
     <div className="flex items-center justify-between bg-muted/70 px-4 py-2">
@@ -30,7 +32,7 @@ export default function Pagination<TData>({ table }: { table: Table<TData> }) {
       <div className="flex items-center space-x-2">
         <span>Showing</span>
         <span className="font-bold">
-          {currentIndex * pageSize + 1} - {currentRows} of {totalRows}
+          {startRow} - {currentRows} of {totalRows}
         </span>
       </div>
       <div className="flex items-center space-x-2">

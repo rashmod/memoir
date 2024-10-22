@@ -35,18 +35,15 @@ function Page() {
         <DataTable
           data={Array(100).fill(null)}
           columns={loadingUserVideoTableColumns}
-          pagination={pagination}
-          setPagination={setPagination}
+          pagination={{ state: pagination, setState: setPagination }}
         />
       )}
       {data && (
         <DataTable
           data={data.data}
           columns={userVideoTableColumns}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          pagination={pagination}
-          setPagination={setPagination}
+          rowSelection={{ state: rowSelection, setState: setRowSelection }}
+          pagination={{ state: pagination, setState: setPagination }}
           onRowClick={(row) => navigate({ to: `/video/${row.videoId}` })}
         />
       )}

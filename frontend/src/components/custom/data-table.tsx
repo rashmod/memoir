@@ -16,27 +16,31 @@ import { cn } from '@/lib/utils';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  rowSelection?: RowSelectionState;
-  setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
-  pagination?: PaginationState;
-  setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  rowSelection?: {
+    state: RowSelectionState;
+    setState: React.Dispatch<React.SetStateAction<RowSelectionState>>;
+  };
+  pagination?: {
+    state: PaginationState;
+    setState: React.Dispatch<React.SetStateAction<PaginationState>>;
+  };
   onRowClick?: (row: TData) => void;
   getRowId?: (row: TData) => string;
   tableClassName?: string;
   tableContainerClassName?: string;
+  getRowClassName?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   rowSelection,
-  setRowSelection,
   pagination,
-  setPagination,
   onRowClick,
   getRowId,
   tableClassName,
   tableContainerClassName,
+  getRowClassName,
 }: DataTableProps<TData, TValue>) {
   const tableConfig: TableOptions<TData> = {
     data,
@@ -50,19 +54,17 @@ export function DataTable<TData, TValue>({
   }
 
   if (rowSelection) {
-    tableConfig.onRowSelectionChange = setRowSelection;
-    tableConfig.state!.rowSelection = rowSelection;
+    tableConfig.onRowSelectionChange = rowSelection.setState;
+    tableConfig.state!.rowSelection = rowSelection.state;
   }
 
   if (pagination) {
     tableConfig.getPaginationRowModel = getPaginationRowModel();
-    tableConfig.onPaginationChange = setPagination;
-    tableConfig.state!.pagination = pagination;
+    tableConfig.onPaginationChange = pagination.setState;
+    tableConfig.state!.pagination = pagination.state;
   }
 
   const table = useReactTable(tableConfig);
-
-  // todo select row when user clicks on row when user is uploading files
 
   return (
     <div className={cn('rounded-md border', tableContainerClassName)}>
@@ -88,6 +90,7 @@ export function DataTable<TData, TValue>({
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
                 onClick={() => onRowClick?.(row.original)}
+                className={cn(getRowClassName && getRowClassName(row.original))}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>

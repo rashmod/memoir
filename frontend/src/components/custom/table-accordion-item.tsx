@@ -14,6 +14,7 @@ export default function TableAccordionItem<TData, TValue>({
   data,
   onDeleteSelectedRows,
   getRowId,
+  getRowClassName,
 }: {
   id: string;
   title: string;
@@ -21,6 +22,7 @@ export default function TableAccordionItem<TData, TValue>({
   columns: ColumnDef<TData, TValue>[];
   onDeleteSelectedRows: (selected: RowSelectionState) => void;
   getRowId?: (row: TData) => string;
+  getRowClassName?: (row: TData) => string;
 }) {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
@@ -42,11 +44,10 @@ export default function TableAccordionItem<TData, TValue>({
         <DataTable
           data={data}
           columns={columns}
-          rowSelection={rowSelection}
-          setRowSelection={setRowSelection}
-          pagination={pagination}
-          setPagination={setPagination}
+          rowSelection={{ state: rowSelection, setState: setRowSelection }}
+          pagination={{ state: pagination, setState: setPagination }}
           getRowId={getRowId}
+          getRowClassName={getRowClassName}
           tableContainerClassName="rounded-none border-0 border-t"
         />
         <SelectionActionBar className="mb-4" selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
