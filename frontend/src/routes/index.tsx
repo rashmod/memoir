@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import videosApi from '@/api/videos';
 import { DataTable } from '@/components/custom/data-table';
-import { userVideoTableColumns } from '@/columns/user-videos';
+import { loadingUserVideoTableColumns, userVideoTableColumns } from '@/columns/user-videos';
 
 export const Route = createFileRoute('/')({
   component: Page,
@@ -31,7 +31,14 @@ function Page() {
 
   return (
     <div className="relative grid w-full gap-4">
-      {isLoading && <div>Loading...</div>}
+      {isLoading && (
+        <DataTable
+          data={Array(100).fill(null)}
+          columns={loadingUserVideoTableColumns}
+          pagination={pagination}
+          setPagination={setPagination}
+        />
+      )}
       {data && (
         <DataTable
           data={data.data}
