@@ -1,12 +1,9 @@
-import { channel, video } from "@/db/schema";
-
 import {
   VideoService,
   ChannelService,
   YoutubeService,
   WatchedVideoService,
   PlaylistService,
-  PlaylistVideoService,
 } from "@/services";
 
 import { Upload } from "@/controllers/upload";
@@ -32,12 +29,12 @@ export default class UploadService {
     private readonly youtubeService: YoutubeService,
     private readonly watchedVideoService: WatchedVideoService,
     private readonly playlistService: PlaylistService,
-    private readonly playlistVideoService: PlaylistVideoService,
   ) {}
 
   async processUpload(upload: Upload) {
     const uniqueVideoIds = new Set<string>();
     const uniqueChannelIds = new Set<string>();
+    const playlistIds: string[] = [];
 
     const videosToInsert: insertVideo[][] = [];
     const channelsToInsert: insertChannel[][] = [];
@@ -47,6 +44,7 @@ export default class UploadService {
     }
 
     for (const playlist of upload.playlists) {
+      playlistIds.push(playlist.id);
       for (const video of playlist.videos) {
         uniqueVideoIds.add(video.videoId);
       }
@@ -130,6 +128,9 @@ export default class UploadService {
       (item) => item.youtubeId,
     );
 
+    const existingPlaylistIds =
+      await this.playlistService.getExistingPlaylistIds(playlistIds);
+
     const response: {
       history: (Video & { watchedAt: string })[];
       playlists: {
@@ -138,7 +139,8 @@ export default class UploadService {
         createdAt: string;
         updatedAt: string;
         visibility: string;
-        videos: (Video & { addedAt: string })[];
+        new: boolean;
+        videos: (Video & { addedAt: string; new: boolean })[];
       }[];
     } = { history: [], playlists: [] };
 
@@ -165,14 +167,20 @@ export default class UploadService {
     }
 
     for (const { videos, ...rest } of upload.playlists) {
-      response.playlists.push({ ...rest, videos: [] });
+      const isPlaylistNew = !existingPlaylistIds.has(rest.id);
+      response.playlists.push({ ...rest, new: isPlaylistNew, videos: [] });
+
+      const existingPlaylistVideoIds =
+        await this.playlistService.getPlaylistVideoIds(rest.id);
 
       for (const item of videos) {
         const video = allVideos.get(item.videoId);
-        if (!video) continue;
+        if (!video) continue; // this should never happen
 
         const channel = allChannels.get(video.channelId);
-        if (!channel) continue;
+        if (!channel) continue; // this should never happen
+
+        const isVideoNew = !existingPlaylistVideoIds.has(video.youtubeId);
 
         response.playlists[response.playlists.length - 1]!.videos.push({
           title: video.title,
@@ -186,6 +194,7 @@ export default class UploadService {
           channelUrl: channel.url,
           channelAvatarUrl: channel.avatarUrl,
           addedAt: item.addedAt,
+          new: isVideoNew,
         });
       }
     }
@@ -208,7 +217,7 @@ export default class UploadService {
     await this.watchedVideoService.bulkCreate(historyChunks);
 
     for (const playlist of playlists) {
-      const playlistData = await this.playlistService.create({
+      const playlistData = await this.playlistService.createPlaylist({
         youtubeId: playlist.id,
         name: playlist.title,
         youtubeCreatedAt: new Date(playlist.createdAt),
@@ -225,7 +234,7 @@ export default class UploadService {
         DB_CHUNK_SIZE,
       );
 
-      await this.playlistVideoService.bulkCreate(videoChunks);
+      await this.playlistService.bulkAddVideos(videoChunks);
     }
 
     return "ok";

@@ -25,6 +25,7 @@ export default class UploadController {
 }
 
 export type Upload = {
+  userId: string;
   history: { videoId: string; watchedAt: string }[];
   playlists: {
     id: string;
