@@ -1,6 +1,6 @@
 import { uploadedData } from '@/routes/upload';
 
-export default function getUniqueVideos(data: uploadedData) {
+export default function getUniqueVideos(data: uploadedData): BasicUniqueVideo[] | DetailedUniqueVideo[] {
   if (data.key === 'detailed') {
     const videos = new Map<string, DetailedUniqueVideo>();
 

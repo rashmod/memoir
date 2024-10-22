@@ -8,10 +8,10 @@ import LazyImage from '@/components/custom/lazy-image';
 import formatDuration from '@/lib/format-duration';
 import formatDate from '@/lib/format-date';
 
-import { BasicVideoNew, DetailedVideoNew } from '@/types/table/video';
+import { BasicVideo, DetailedVideo } from '@/types/table/video';
 
-const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideoNew>();
-const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideoNew>();
+const basicWatchHistoryColumnHelper = createColumnHelper<BasicVideo>();
+const detailedWatchHistoryColumnHelper = createColumnHelper<DetailedVideo>();
 
 export const basicWatchHistoryColumns = [
   basicWatchHistoryColumnHelper.display({
@@ -72,7 +72,7 @@ export const basicWatchHistoryColumns = [
       </NewTabLink>
     ),
   }),
-] as ColumnDef<BasicVideoNew>[];
+] as ColumnDef<BasicVideo>[];
 
 export const detailedWatchHistoryColumns = [
   detailedWatchHistoryColumnHelper.display({
@@ -144,4 +144,4 @@ export const detailedWatchHistoryColumns = [
     accessorKey: 'tags',
     header: 'Tags',
   },
-] as ColumnDef<DetailedVideoNew>[];
+] as ColumnDef<DetailedVideo>[];

@@ -1,18 +1,18 @@
 import axios from 'axios';
 
-import { DetailedVideoNew, FinalVideo, UserVideo } from '@/types/table/video';
+import { DetailedVideo, UserVideo, UserVideoDetails } from '@/types/table/video';
 import { DetailedPlaylist } from '@/types/table/playlist';
-
-async function getHistory(): Promise<{ message: string; data: FinalVideo[] }> {
-  const response = await axios.get('http://localhost:3000/api/history');
-  // console.log(response.data);
-
-  return response.data;
-}
 
 async function getUserVideos(): Promise<{ message: string; data: UserVideo[] }> {
   const response = await axios.get('http://localhost:3000/api/videos');
   console.log('user videos');
+  console.log(response.data);
+
+  return response.data;
+}
+
+async function getUserVideo(videoId: string): Promise<{ message: string; data: UserVideoDetails }> {
+  const response = await axios.get(`http://localhost:3000/api/videos/${videoId}`);
   console.log(response.data);
 
   return response.data;
@@ -27,47 +27,14 @@ async function uploadData(upload: Upload) {
 
 async function addFile(
   upload: Upload
-): Promise<{ message: string; data: { history: DetailedVideoNew[]; playlists: DetailedPlaylist[] } }> {
+): Promise<{ message: string; data: { history: DetailedVideo[]; playlists: DetailedPlaylist[] } }> {
   const response = await axios.post('http://localhost:3000/api/upload/add-file', { upload });
   console.log(response.data);
 
   return response.data;
 }
 
-async function getVideoHistory(videoId: string): Promise<{
-  message: string;
-  data: {
-    video: {
-      videoId: string;
-      title: string;
-      description: string | null;
-      url: string;
-      thumbnailUrl: string;
-      duration: number;
-      youtubeCreatedAt: string;
-      channelId: string;
-      channelName: string;
-      channelUrl: string;
-      channelAvatarUrl: string;
-      channelCreatedAt: string;
-    };
-    history: {
-      id: string;
-      youtubeCreatedAt: string;
-      createdAt: string;
-      updatedAt: string;
-      userId: string;
-      youtubeVideoId: string;
-    }[];
-  };
-}> {
-  const response = await axios.get(`http://localhost:3000/api/history/${videoId}`);
-  console.log(response.data);
-
-  return response.data;
-}
-
-export default { uploadData, addFile, getHistory, getUserVideos, getVideoHistory };
+export default { uploadData, addFile, getUserVideos, getUserVideo };
 
 type Upload = {
   history: { videoId: string; watchedAt: string }[];

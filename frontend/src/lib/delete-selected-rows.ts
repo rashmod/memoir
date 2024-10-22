@@ -1,6 +1,5 @@
 import { RowSelectionState } from '@tanstack/react-table';
 import { uploadedData } from '@/routes/upload';
-import { BasicVideoNew } from '@/types/table/video';
 
 export function deleteSelectedRows(input: {
   selected: RowSelectionState;
@@ -29,16 +28,21 @@ export function deleteSelectedRows({
   if (key === 'playlists') {
     if (index === undefined) throw new Error('Index is undefined');
 
-    setData((prev) => ({
-      ...prev,
-      playlists: prev.playlists.map((playlist, i) => ({
-        ...playlist,
-        videos: i === index ? playlist.videos.filter((_, idx) => !selected[idx]) : playlist.videos,
-      })),
-    }));
+    setData((prev) => {
+      if (prev.key === 'basic') return prev;
+      return {
+        ...prev,
+        playlists: prev.playlists.map((playlist, i) => ({
+          ...playlist,
+          videos: i === index ? playlist.videos.filter((_, idx) => !selected[idx]) : playlist.videos,
+        })),
+      };
+    });
   } else if (key === 'unique') {
     setData((prev) => {
-      const history = prev.history.filter((video) => !selected[video.videoId]) as BasicVideoNew[];
+      if (prev.key === 'basic') return prev;
+
+      const history = prev.history.filter((video) => !selected[video.videoId]);
       const playlists = prev.playlists.map((playlist) => ({
         ...playlist,
         videos: playlist.videos.filter((video) => !selected[video.videoId]),

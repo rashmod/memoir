@@ -1,7 +1,7 @@
 import { WatchHistory } from '@/types/uploads/watch-history';
-import { BasicVideoNew } from '@/types/table/video';
+import { BasicVideo } from '@/types/table/video';
 
-export default function processWatchHistory(data: WatchHistory): BasicVideoNew[] {
+export default function processWatchHistory(data: WatchHistory): BasicVideo[] {
   return data
     .filter(hasNoDetails)
     .filter((item) => 'titleUrl' in item)

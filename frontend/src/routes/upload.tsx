@@ -17,19 +17,19 @@ import FileUploader from '@/components/custom/file-uploader';
 import TableAccordionItem from '@/components/custom/table-accordion-item';
 
 import { BasicPlaylist, DetailedPlaylist, DetailedPlaylistVideo } from '@/types/table/playlist';
-import { BasicVideoNew, DetailedVideoNew } from '@/types/table/video';
+import { BasicVideo, DetailedVideo } from '@/types/table/video';
 import { BasicSubscription } from '@/types/table/subscription';
 
 export type uploadedData =
   | {
       key: 'basic';
-      history: BasicVideoNew[];
+      history: BasicVideo[];
       playlists: BasicPlaylist[];
       subscriptions: BasicSubscription[];
     }
   | {
       key: 'detailed';
-      history: DetailedVideoNew[];
+      history: DetailedVideo[];
       playlists: DetailedPlaylist[];
       subscriptions: BasicSubscription[];
     };

@@ -1,33 +1,4 @@
 export type BasicVideo = {
-  youtubeId: string;
-  title: string;
-  url: string;
-  time: string;
-  channelName: string | undefined;
-  channelUrl: string | undefined;
-};
-
-export type DetailedVideo = BasicVideo & {
-  thumbnailUrl: string;
-  duration: number;
-  youtubeCreatedAt: Date;
-  channelId: string;
-  channelName: string;
-  channelUrl: string;
-  channelAvatarUrl: string;
-};
-
-export type FinalVideo = Omit<DetailedVideo, 'time'> & {
-  lastWatchedAt: string;
-  watchCount?: number;
-};
-
-export type HistoryVideo = {
-  id: string;
-  youtubeCreatedAt: string;
-};
-
-export type BasicVideoNew = {
   videoId: string;
   title: string;
   url: string;
@@ -36,7 +7,7 @@ export type BasicVideoNew = {
   channelUrl: string | undefined;
 };
 
-export type DetailedVideoNew = BasicVideoNew & {
+export type DetailedVideo = BasicVideo & {
   thumbnailUrl: string;
   duration: number;
   youtubeCreatedAt: string;
@@ -53,11 +24,40 @@ export type UserVideo = {
   lastWatchedAt: string | null;
   thumbnailUrl: string;
   duration: number;
-  youtubeCreatedAt: Date;
+  youtubeCreatedAt: string;
   channelId: string;
   channelName: string;
   channelUrl: string;
   channelAvatarUrl: string;
   watchCount: number;
   playlists: string[];
+};
+
+export type UserVideoDetails = {
+  video: {
+    videoId: string;
+    title: string;
+    description: string | null;
+    url: string;
+    thumbnailUrl: string;
+    duration: number;
+    youtubeCreatedAt: string;
+    channelId: string;
+    channelName: string;
+    channelUrl: string;
+    channelAvatarUrl: string;
+    channelCreatedAt: string;
+  };
+  history: UserVideoDetailsHistory[];
+  playlists: UserVideoDetailsPlaylist[];
+};
+
+export type UserVideoDetailsHistory = {
+  watchedAt: string;
+};
+
+export type UserVideoDetailsPlaylist = {
+  playlistId: string;
+  playlistName: string;
+  addedAt: string;
 };
