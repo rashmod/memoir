@@ -47,6 +47,7 @@ export default function TableAccordionItem<TData, TValue>({
           pagination={pagination}
           setPagination={setPagination}
           getRowId={getRowId}
+          tableContainerClassName="rounded-none border-0 border-t"
         />
         <SelectionActionBar className="mb-4" selectedCount={selectedCount} onDeleteSelected={onDeleteSelected} />
       </AccordionContent>

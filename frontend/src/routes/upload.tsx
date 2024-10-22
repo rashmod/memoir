@@ -89,7 +89,7 @@ function Page() {
       {error && <pre>{JSON.stringify(error, null, 2)}</pre>}
 
       {hasData && (
-        <div className="w-full space-y-4">
+        <div className="mb-auto w-full space-y-4">
           <Button
             onClick={() => uploadMutation.mutate(jsonData)}
             disabled={!isDetailedData || uploadMutation.isPending}

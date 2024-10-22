@@ -134,7 +134,7 @@ function Page() {
         </div>
 
         <div>
-          <p className="text-lg font-semibold">Watch History</p>
+          <p className="text-lg font-semibold mb-1">Watch History</p>
           <DataTable data={history} columns={userVideoHistoryColumns} />
         </div>
       </div>

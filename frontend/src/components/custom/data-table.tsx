@@ -11,6 +11,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import Pagination from '@/components/custom/pagination';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -21,6 +22,8 @@ interface DataTableProps<TData, TValue> {
   setPagination?: React.Dispatch<React.SetStateAction<PaginationState>>;
   onRowClick?: (row: TData) => void;
   getRowId?: (row: TData) => string;
+  tableClassName?: string;
+  tableContainerClassName?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +35,8 @@ export function DataTable<TData, TValue>({
   setPagination,
   onRowClick,
   getRowId,
+  tableClassName,
+  tableContainerClassName,
 }: DataTableProps<TData, TValue>) {
   const tableConfig: TableOptions<TData> = {
     data,
@@ -60,9 +65,9 @@ export function DataTable<TData, TValue>({
   // todo select row when user clicks on row when user is uploading files
 
   return (
-    <div>
+    <div className={cn('rounded-md border', tableContainerClassName)}>
       {pagination && <Pagination table={table} />}
-      <Table>
+      <Table className={cn('border-b border-t', tableClassName)}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
