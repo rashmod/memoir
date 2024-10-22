@@ -73,6 +73,7 @@ export default class UploadService {
         videosToInsert[videosToInsert.length - 1]!.push({
           youtubeId: video.id,
           title: video.snippet.title,
+          description: video.snippet.description,
           url: `https://www.youtube.com/watch?v=${video.id}`,
           duration: parseISODuration(video.contentDetails.duration),
           channelId: video.snippet.channelId,

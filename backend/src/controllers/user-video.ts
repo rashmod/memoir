@@ -11,4 +11,15 @@ export default class VideoController {
 
     res.status(200).json({ message: "ok", data: response });
   };
+
+  getVideo = async (req: express.Request, res: express.Response) => {
+    const { videoId } = req.params;
+    const userId = "0e4fce12-3606-4a66-b545-17b219682451";
+
+    if (!videoId) throw new Error("No videoId provided");
+
+    const response = await this.userVideoService.getVideo(userId, videoId);
+
+    res.status(200).json({ message: "ok", data: response });
+  };
 }

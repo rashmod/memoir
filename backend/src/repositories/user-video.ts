@@ -1,4 +1,4 @@
-import { count, desc, eq, max } from "drizzle-orm";
+import { and, count, desc, eq, max } from "drizzle-orm";
 
 import db from "@/db";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@/db/schema";
 
 export default class UserVideoRepository {
-  async getAll(userId: string) {
+  async getHistory(userId: string) {
     const historySubquery = db
       .select({
         youtubeId: watchedVideo.youtubeVideoId,
@@ -42,6 +42,10 @@ export default class UserVideoRepository {
       .innerJoin(channel, eq(channel.youtubeId, video.channelId))
       .orderBy(desc(historySubquery.lastWatchedAt));
 
+    return history;
+  }
+
+  async getPlaylists(userId: string) {
     const playlists = await db
       .select({
         videoId: playlistVideo.youtubeVideoId,
@@ -66,6 +70,44 @@ export default class UserVideoRepository {
       .innerJoin(channel, eq(channel.youtubeId, video.channelId))
       .orderBy(desc(playlistVideo.youtubeCreatedAt));
 
-    return { history, playlists };
+    return playlists;
+  }
+
+  async getVideoHistory(userId: string, videoId: string) {
+    const history = await db
+      .select({ watchedAt: watchedVideo.youtubeCreatedAt })
+      .from(watchedVideo)
+      .where(
+        and(
+          eq(watchedVideo.userId, userId),
+          eq(watchedVideo.youtubeVideoId, videoId),
+        ),
+      )
+      .orderBy(desc(watchedVideo.youtubeCreatedAt));
+
+    return history;
+  }
+
+  async getVideoPlaylists(userId: string, videoId: string) {
+    const playlists = await db
+      .select({
+        playlistId: playlist.youtubeId,
+        playlistName: playlist.name,
+        addedAt: playlistVideo.youtubeCreatedAt,
+      })
+      .from(playlist)
+      .where(
+        and(
+          eq(playlist.userId, userId),
+          eq(playlistVideo.youtubeVideoId, videoId),
+        ),
+      )
+      .innerJoin(
+        playlistVideo,
+        eq(playlistVideo.youtubePlaylistId, playlist.youtubeId),
+      )
+      .orderBy(desc(playlistVideo.youtubeCreatedAt));
+
+    return playlists;
   }
 }

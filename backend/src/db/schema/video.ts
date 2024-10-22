@@ -13,7 +13,7 @@ const video = pgTable("video", {
   id: uuid("id").defaultRandom().notNull(),
   youtubeId: varchar("youtube_id", { length: 11 }).primaryKey().notNull(),
   title: varchar("title", { length: 255 }).notNull(),
-  description: text("description"),
+  description: text("description").notNull(),
   url: varchar("url", { length: 255 }).notNull(),
   thumbnailUrl: varchar("thumbnail_url", { length: 255 }).notNull(),
   duration: integer("duration").notNull(),

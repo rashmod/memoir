@@ -1,11 +1,15 @@
 import { UserVideoRepository } from "@/repositories";
+import { VideoService } from "@/services";
 
 export default class UserVideoService {
-  constructor(private readonly userVideoRepository: UserVideoRepository) {}
+  constructor(
+    private readonly userVideoRepository: UserVideoRepository,
+    private readonly videoService: VideoService,
+  ) {}
 
   async getAll(userId: string) {
-    const { history, playlists } =
-      await this.userVideoRepository.getAll(userId);
+    const history = await this.userVideoRepository.getHistory(userId);
+    const playlists = await this.userVideoRepository.getPlaylists(userId);
 
     const result = new Map<
       string,
@@ -71,5 +75,19 @@ export default class UserVideoService {
     }
 
     return Array.from(result.values());
+  }
+
+  async getVideo(userId: string, videoId: string) {
+    const video = await this.videoService.get(videoId);
+    const history = await this.userVideoRepository.getVideoHistory(
+      userId,
+      videoId,
+    );
+    const playlists = await this.userVideoRepository.getVideoPlaylists(
+      userId,
+      videoId,
+    );
+
+    return { video, history, playlists };
   }
 }
