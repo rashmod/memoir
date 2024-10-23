@@ -31,7 +31,7 @@ export default class UploadService {
     private readonly playlistService: PlaylistService,
   ) {}
 
-  async processUpload(upload: Upload) {
+  async processUpload(upload: Upload, userId: string) {
     const uniqueVideoIds = new Set<string>();
     const uniqueChannelIds = new Set<string>();
     const playlistIds: string[] = [];
@@ -131,8 +131,11 @@ export default class UploadService {
     const existingPlaylistIds =
       await this.playlistService.getExistingPlaylistIds(playlistIds);
 
+    const mostRecentWatchedVideo =
+      await this.watchedVideoService.getMostRecentVideo(userId);
+
     const response: {
-      history: (Video & { watchedAt: string })[];
+      history: (Video & { watchedAt: string; new: boolean })[];
       playlists: {
         id: string;
         title: string;
@@ -163,6 +166,9 @@ export default class UploadService {
         channelUrl: channel.url,
         channelAvatarUrl: channel.avatarUrl,
         watchedAt: item.watchedAt,
+        new: mostRecentWatchedVideo
+          ? new Date(item.watchedAt) > mostRecentWatchedVideo.watchedAt
+          : true,
       });
     }
 

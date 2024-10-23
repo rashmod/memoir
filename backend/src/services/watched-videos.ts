@@ -13,4 +13,8 @@ export default class WatchedVideoService {
   async create(videos: insertWatchedVideo[]) {
     return await this.watchedVideoRepository.create(videos);
   }
+
+  async getMostRecentVideo(userId: string) {
+    return await this.watchedVideoRepository.getMostRecentVideo(userId);
+  }
 }
