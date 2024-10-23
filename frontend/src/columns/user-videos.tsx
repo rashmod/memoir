@@ -49,26 +49,7 @@ export const loadingUserVideoTableColumns = [
   }),
   userVideoTableColumnHelper.display({
     header: 'Tags',
-    cell: () => (
-      <div className="flex min-w-32 flex-wrap gap-2">
-        {Array(5)
-          .fill(0)
-          .map((_, i) => {
-            const rand = Math.floor(Math.random() * 10);
-
-            return (
-              <Skeleton
-                key={i}
-                className={cn('h-4 rounded-full', {
-                  'w-10': rand % 3 === 0,
-                  'w-14': rand % 3 === 1,
-                  'w-16': rand % 3 === 2,
-                })}
-              />
-            );
-          })}
-      </div>
-    ),
+    cell: ({ row }) => <div className="flex min-w-32 flex-wrap gap-2">{loader[row.index % loader.length]}</div>,
   }),
 ] as ColumnDef<null>[];
 
@@ -183,3 +164,24 @@ export const userVideoTableColumns = [
     },
   }),
 ] as ColumnDef<UserVideo>[];
+
+const loader = Array(10)
+  .fill(0)
+  .map(() =>
+    Array(5)
+      .fill(0)
+      .map((_, i) => {
+        const rand = Math.floor(Math.random() * 10);
+
+        return (
+          <Skeleton
+            key={i}
+            className={cn('h-4 rounded-full', {
+              'w-10': rand % 3 === 0,
+              'w-14': rand % 3 === 1,
+              'w-16': rand % 3 === 2,
+            })}
+          />
+        );
+      })
+  );

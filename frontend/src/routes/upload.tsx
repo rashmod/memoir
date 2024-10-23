@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 
 import { uploadData, addFile } from '@/api/upload';
@@ -52,6 +52,8 @@ function Page() {
 
   const [showExisting, setShowExisting] = useState(false);
 
+  const navigate = useNavigate();
+
   const addMutation = useMutation({
     mutationFn: addFile,
     onSuccess: ({ data }) =>
@@ -60,27 +62,48 @@ function Page() {
 
   const uploadMutation = useMutation({
     mutationFn: uploadData,
+    onSuccess: () => navigate({ to: '/' }),
   });
 
   const hasData = jsonData.history.length > 0 || jsonData.playlists.length > 0 || jsonData.subscriptions.length > 0;
 
-  const filteredPlaylistData = useMemo(() => {
-    if (jsonData.key === 'basic' || showExisting) return jsonData.playlists;
-    return jsonData.playlists.map((playlist) => ({
-      ...playlist,
-      videos: playlist.videos.filter((video) => video.new),
-    }));
+  const filteredData = useMemo(() => {
+    if (jsonData.key === 'basic' || showExisting) return jsonData;
+    return {
+      key: jsonData.key,
+      history: jsonData.history.filter((video) => video.new),
+      playlists: jsonData.playlists.map((playlist) => ({
+        ...playlist,
+        videos: playlist.videos.filter((video) => video.new),
+      })),
+      subscriptions: jsonData.subscriptions,
+    };
   }, [showExisting, jsonData]);
 
-  const watchLaterIndex = filteredPlaylistData.findIndex((playlist) => playlist.title === 'Watch later');
-  const watchLater = watchLaterIndex > -1 && filteredPlaylistData[watchLaterIndex]!;
+  const watchLaterIndex = filteredData.playlists.findIndex((playlist) => playlist.title === 'Watch later');
+  const watchLater = watchLaterIndex > -1 && filteredData.playlists[watchLaterIndex]!;
 
   const uniqueVideos = useMemo(() => {
     if (jsonData.key === 'basic') return getUniqueVideos(jsonData);
-    return getUniqueVideos({ ...jsonData, playlists: filteredPlaylistData as DetailedPlaylist[] });
-  }, [jsonData, filteredPlaylistData]);
+    return getUniqueVideos(filteredData);
+  }, [jsonData, filteredData]);
 
-  const isDetailedData = jsonData.key === 'detailed';
+  const isDetailedData = filteredData.key === 'detailed';
+
+  function onUpload() {
+    if (!isDetailedData) return;
+    if (showExisting) {
+      uploadMutation.mutate({
+        history: filteredData.history.filter((video) => video.new),
+        playlists: filteredData.playlists.map((playlist) => ({
+          ...playlist,
+          videos: playlist.videos.filter((video) => video.new),
+        })),
+      });
+      return;
+    }
+    uploadMutation.mutate(filteredData);
+  }
 
   return (
     <section className="grid place-items-center gap-8">
@@ -100,10 +123,7 @@ function Page() {
       {hasData && (
         <div className="mb-auto w-full space-y-4">
           <div className="flex items-end justify-between">
-            <Button
-              onClick={() => uploadMutation.mutate(jsonData)}
-              disabled={!isDetailedData || uploadMutation.isPending}
-            >
+            <Button onClick={onUpload} disabled={!isDetailedData || uploadMutation.isPending}>
               {uploadMutation.isPending ? 'Uploading...' : 'Upload'}
             </Button>
             <div className="flex items-center gap-2">
@@ -131,7 +151,7 @@ function Page() {
                 />
                 <TableAccordionItem
                   id="watch-history"
-                  data={jsonData.history}
+                  data={filteredData.history}
                   title="Watch History"
                   columns={detailedWatchHistoryColumns}
                   onDeleteSelectedRows={(selected) =>
@@ -141,6 +161,19 @@ function Page() {
                       key: 'history',
                     })
                   }
+                  getRowClassName={(row) => {
+                    const className: string[] = [];
+
+                    if (showExisting) {
+                      if (row.new) {
+                        className.push('bg-green-50');
+                      } else {
+                        className.push('opacity-40');
+                      }
+                    }
+
+                    return className.join(' ');
+                  }}
                 />
 
                 {watchLater && (
@@ -157,10 +190,23 @@ function Page() {
                         index: watchLaterIndex,
                       })
                     }
+                    getRowClassName={(row) => {
+                      const className: string[] = [];
+
+                      if (showExisting) {
+                        if (row.new) {
+                          className.push('bg-green-50');
+                        } else {
+                          className.push('opacity-40');
+                        }
+                      }
+
+                      return className.join(' ');
+                    }}
                   />
                 )}
 
-                {(filteredPlaylistData as DetailedPlaylist[]).map(
+                {filteredData.playlists.map(
                   (playlist, i) =>
                     i !== watchLaterIndex && (
                       <TableAccordionItem
@@ -212,7 +258,7 @@ function Page() {
                 />
                 <TableAccordionItem
                   id="watch-history"
-                  data={jsonData.history}
+                  data={filteredData.history}
                   title="Watch History"
                   columns={basicWatchHistoryColumns}
                   onDeleteSelectedRows={(selected) =>
@@ -241,7 +287,7 @@ function Page() {
                   />
                 )}
 
-                {jsonData.playlists.map(
+                {filteredData.playlists.map(
                   (playlist, i) =>
                     i !== watchLaterIndex && (
                       <TableAccordionItem

@@ -15,6 +15,7 @@ export type DetailedVideo = BasicVideo & {
   channelName: string;
   channelUrl: string;
   channelAvatarUrl: string;
+  new: boolean;
 };
 
 export type UserVideo = {
