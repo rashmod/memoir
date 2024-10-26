@@ -74,7 +74,7 @@ export default function LazyImage({
         onLoad={onLoad}
         onError={onError}
       />
-      {!isLoaded && <Skeleton className={cn(className, 'bg-muted-foreground/40')} />}
+      {!isLoaded && <Skeleton className={cn(className, 'bg-muted/40')} />}
     </>
   );
 }

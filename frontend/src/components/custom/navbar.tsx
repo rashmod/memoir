@@ -2,11 +2,12 @@ import { Hexagon } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 
 import { Button } from '@/components/ui/button';
+import ThemeToggle from '@/components/custom/theme-toggle';
 
 export default function Navbar() {
   return (
     <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex items-end px-8">
+      <div className="container mx-auto flex items-center justify-between gap-8 px-8">
         <header className="sticky top-0 z-10 flex h-[57px] items-center gap-4">
           <div className="border-r p-2 pl-0">
             <Button variant="outline" size="icon" aria-label="Home">
@@ -28,6 +29,8 @@ export default function Navbar() {
             </Button>
           </Link>
         </div>
+
+        <ThemeToggle />
       </div>
     </div>
   );

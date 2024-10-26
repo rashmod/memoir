@@ -36,7 +36,7 @@ export default function TableAccordionItem<TData, TValue>({
 
   return (
     <AccordionItem value={id} className="rounded-md border">
-      <AccordionTrigger className="group rounded-md bg-muted-foreground px-4 py-2 text-sm font-normal text-white hover:no-underline data-[state=open]:rounded-b-none">
+      <AccordionTrigger className="group rounded-md bg-muted px-4 py-2 text-sm font-normal hover:no-underline data-[state=open]:rounded-b-none">
         <p className="group-hover:underline">{title}</p>
         <Badge className="-mb-0.5 font-medium hover:no-underline">{data.length}</Badge>
       </AccordionTrigger>
