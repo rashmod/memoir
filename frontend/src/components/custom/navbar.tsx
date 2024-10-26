@@ -23,6 +23,11 @@ export default function Navbar() {
               Home
             </Button>
           </Link>
+          <Link to="/videos" className="[&.active>*]:font-bold">
+            <Button variant="link" size="sm">
+              Videos
+            </Button>
+          </Link>
           <Link to="/upload" className="[&.active>*]:font-bold">
             <Button variant="link" size="sm">
               Upload

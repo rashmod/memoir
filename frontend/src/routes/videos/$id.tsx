@@ -12,7 +12,7 @@ import { userVideoHistoryColumns, userVideoPlaylistColumns } from '@/columns/use
 import NewTabLink from '@/components/custom/new-tab-link';
 import LazyImage from '@/components/custom/lazy-image';
 
-export const Route = createFileRoute('/video/$id')({
+export const Route = createFileRoute('/videos/$id')({
   component: Page,
 });
 
@@ -43,7 +43,7 @@ function Page() {
           <h1 className="text-2xl font-semibold">
             <span>{video.title}</span>
             <NewTabLink link={video.url} className="ml-2">
-              <Badge variant="secondary" className="hover:bg-accent-foreground hover:text-accent">
+              <Badge variant="default">
                 Go to video <ExternalLink className="ml-1 size-4" />
               </Badge>
             </NewTabLink>
@@ -79,7 +79,7 @@ function Page() {
             <div className="text-xl font-semibold">
               <span>{video.channelName}</span>
               <NewTabLink link={video.channelUrl} className="ml-2">
-                <Badge variant="secondary" className="hover:bg-accent-foreground hover:text-accent">
+                <Badge variant="default">
                   Go to channel <ExternalLink className="ml-1 size-4" />
                 </Badge>
               </NewTabLink>
