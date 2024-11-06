@@ -1,4 +1,16 @@
-import { and, count, desc, eq, max } from "drizzle-orm";
+import {
+  and,
+  count,
+  countDistinct,
+  desc,
+  eq,
+  gt,
+  lt,
+  max,
+  sql,
+  sum,
+  sumDistinct,
+} from "drizzle-orm";
 
 import db from "@/db";
 import {
@@ -109,5 +121,81 @@ export default class UserVideoRepository {
       .orderBy(desc(playlistVideo.youtubeCreatedAt));
 
     return playlists;
+  }
+
+  // TODO group video based on date based on users timezone
+  async getSummary(userId: string, startDate: Date, endDate: Date) {
+    const historySummary = await db
+      .select({
+        date: sql<string>`(watched_video.youtube_created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date`.as(
+          "date",
+        ),
+        count: count(watchedVideo.youtubeVideoId),
+        uniqueCount: countDistinct(watchedVideo.youtubeVideoId),
+        duration: sum(video.duration).mapWith(Number),
+        uniqueDuration: sumDistinct(video.duration).mapWith(Number),
+      })
+      .from(watchedVideo)
+      .innerJoin(video, eq(video.youtubeId, watchedVideo.youtubeVideoId))
+      .where(
+        and(
+          eq(watchedVideo.userId, userId),
+          gt(watchedVideo.youtubeCreatedAt, startDate),
+          lt(watchedVideo.youtubeCreatedAt, endDate),
+        ),
+      )
+      .groupBy(
+        sql`(watched_video.youtube_created_at AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Kolkata')::date`,
+      )
+      .orderBy(sql`date`);
+
+    const channelSummary = await db
+      .select({
+        channelId: video.channelId,
+        channelName: max(channel.name),
+        channelAvatarUrl: max(channel.avatarUrl),
+        count: count(watchedVideo.youtubeVideoId),
+        duration: sum(video.duration).mapWith(Number),
+      })
+      .from(watchedVideo)
+      .innerJoin(video, eq(video.youtubeId, watchedVideo.youtubeVideoId))
+      .innerJoin(channel, eq(channel.youtubeId, video.channelId))
+      .where(
+        and(
+          eq(watchedVideo.userId, userId),
+          gt(watchedVideo.youtubeCreatedAt, startDate),
+          lt(watchedVideo.youtubeCreatedAt, endDate),
+        ),
+      )
+      .groupBy(video.channelId)
+      .orderBy(desc(count(watchedVideo.youtubeVideoId)));
+
+    const watchLaterSummary = await db
+      .select({
+        channelId: video.channelId,
+        channelName: max(channel.name),
+        channelAvatarUrl: max(channel.avatarUrl),
+        count: count(playlistVideo.youtubeVideoId).mapWith(Number),
+        duration: sum(video.duration).mapWith(Number),
+      })
+      .from(playlist)
+      .innerJoin(
+        playlistVideo,
+        eq(playlistVideo.youtubePlaylistId, playlist.youtubeId),
+      )
+      .innerJoin(video, eq(video.youtubeId, playlistVideo.youtubeVideoId))
+      .innerJoin(channel, eq(channel.youtubeId, video.channelId))
+      .where(
+        and(
+          eq(playlist.userId, userId),
+          eq(playlist.name, "Watch later"),
+          gt(playlistVideo.youtubeCreatedAt, startDate),
+          lt(playlistVideo.youtubeCreatedAt, endDate),
+        ),
+      )
+      .groupBy(video.channelId)
+      .orderBy(desc(count(playlistVideo.youtubeVideoId)));
+
+    return { historySummary, channelSummary, watchLaterSummary };
   }
 }

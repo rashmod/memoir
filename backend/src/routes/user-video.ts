@@ -17,6 +17,7 @@ const userVideoService = new UserVideoService(
 const userVideoController = new UserVideoController(userVideoService);
 
 router.get("/", userVideoController.getAll);
+router.get("/summary", userVideoController.getSummary);
 router.get("/:videoId", userVideoController.getVideo);
 
 export default router;

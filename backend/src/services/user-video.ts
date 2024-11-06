@@ -90,4 +90,16 @@ export default class UserVideoService {
 
     return { video, history, playlists };
   }
+
+  async getSummary(userId: string) {
+    const startDate = new Date("2022-01-01T00:00:00.000Z");
+    const endDate = new Date("2022-02-01T00:00:00.000Z");
+    const summary = await this.userVideoRepository.getSummary(
+      userId,
+      startDate,
+      endDate,
+    );
+
+    return summary;
+  }
 }
