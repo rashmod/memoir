@@ -69,7 +69,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className={cn('rounded-md border', tableContainerClassName)}>
       {pagination && <Pagination table={table} />}
-      <Table className={cn('border-b border-t', tableClassName)}>
+      <Table className={cn('border-b border-t bg-card', tableClassName)}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
